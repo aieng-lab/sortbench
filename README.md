@@ -31,7 +31,7 @@ python sortbench/create_results.py --mode=advanced --version=v1.0 --model_names 
 To evaluate the results, run the following command:
 
 ```bash
-python sortbench/create_results.py --mode=basic --version=v1.0
-python sortbench/create_results.py --mode=advanced --version=v1.0
+python sortbench/calculate_scores.py --mode=basic --version=v1.0
+python sortbench/calculate_scores.py --mode=advanced --version=v1.0
 ```
 
