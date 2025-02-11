@@ -1,16 +1,18 @@
+import gzip
 import json
 import os
 
 def load_results_from_disk(file_path='benchmark_results'):
     """
     Load all results from a local directory into a dict of dicts. Will return an empty dict if no results are found.
+    Results are stored as gzipped JSON files.
 
     Parameters:
     file_path (str): path to directory containing results files (default: 'benchmark_results')
     """
     results = {}
     for filename in os.listdir(file_path):
-        with open(os.path.join(file_path, filename), 'r') as f:
+        with gzip.open(os.path.join(file_path, filename), 'rt', encoding="UTF-8") as f:
             data = json.load(f)
             results[filename] = data
     return results
@@ -32,7 +34,7 @@ def check_if_result_available(results, config_name, model_name):
 
 def write_results_to_disk(results, file_path='benchmark_results', overwrite=False):
     """
-    Write results to disk.
+    Write results to disk. Results are stored as gzipped JSON files.
 
     Parameters:
     results (dict): dict containing all results
@@ -44,12 +46,12 @@ def write_results_to_disk(results, file_path='benchmark_results', overwrite=Fals
         os.makedirs(os.path.dirname(file), exist_ok=True)
         if not overwrite and os.path.exists(file):
             # read existing results and update
-            with open(file, 'r') as f:
+            with gzip.open(file, 'rt', encoding="UTF-8") as f:
                 existing_results = json.load(f)
                 existing_results['results'] = existing_results['results'] + config_results['results']
                 dict_to_write = existing_results
         else:
             dict_to_write = config_results
 
-        with open(file, 'w') as f:
+        with gzip.open(file, 'wt', encoding="UTF-8") as f:
             json.dump(dict_to_write, f)
