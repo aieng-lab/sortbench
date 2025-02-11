@@ -24,8 +24,10 @@ def main():
     # Set types based on mode
     if args.mode == 'basic':
         types = ['integer', 'float', 'string', 'word']
+        type_names = ['integers-0:100', 'floats-0:100', 'strings', 'words']
     elif args.mode == 'advanced':
         types = ['number_string', 'prefix_string', 'prefix_words']
+        type_names = ['number_strings', 'prefix_strings', 'prefix_words']
     else:
         raise ValueError("Mode must be 'basic' or 'advanced'")
 
@@ -36,7 +38,7 @@ def main():
     name = args.name+'_'+args.mode
 
     # Generate benchmark data
-    data_utils.generate_benchmark_data(path=args.path, name=name, version=args.version, num_lists=args.num_samples, sizes=sizes, types=types)
+    data_utils.generate_benchmark_data(path=args.path, name=name, version=args.version, num_lists=args.num_samples, sizes=sizes, types=types, type_names=type_names)
 
 if __name__ == "__main__":
     main()

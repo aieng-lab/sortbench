@@ -8,7 +8,14 @@ from nltk.corpus import wordnet
 
 def generate_unsorted_list(n=10, type='integer', **kwargs):
     """
-    Generate a list of n random values of the given type.
+    Generate a list of n random values of the given type. The following types are supported:
+    - integer: random integers between min_value and max_value
+    - float: random floats between min_value and max_value
+    - string: random strings of 5 characters
+    - word: random words from the NLTK wordnet corpus. Words with apostrophes are excluded.
+    - number_string: random number strings between min_value and max_value
+    - prefix_string: random strings of 8 characters with a prefix of 3 characters that are equal
+    - prefix_words: random words from the NLTK wordnet corpus with a prefix of 3 characters that are equal. Words with apostrophes are excluded.
 
     The random seed should be controlled by the caller if reproducibility is desired. Use random.seed() from the random module.
 
@@ -73,23 +80,35 @@ def generate_json_file(file, num_lists, generator):
     with open(file, 'w') as f:
         f.write(json.dumps(data))
 
-def generate_benchmark_data(path, name, version, num_lists, sizes, types):
+def generate_benchmark_data(path, name, version, num_lists, sizes, types, type_names=None):
     """
     Generate benchmark data for a given name, sizes, and types.
     The data is written to the folder 'benchmark_data', with one JSON file per size and type.
 
     Parameters:
     - path: the path to the folder where the data files will be written
-    - name: the name of the benchmark data
-    - version: the version of the benchmark data
+    - name: the name of the benchmark data. The name must include a single underscore.
+    - version: the version of the benchmark data. The version must not include underscores.
     - num_lists: the number of lists to generate
+    - sizes: a list of sizes for the lists
+    - types: a list of types for the lists
+    - type_names: a list of names for the types. Uses types if None. Names must not include underscores. (optional, default: None)
     """
     max_digits = len(str(max(sizes)))
+    if type_names is None:
+        type_names = types
+    if len(name.split('_')) != 2:
+        raise ValueError("Name must include a single underscore (between name of benchmark and mode)")
+    if '_' in version:
+        raise ValueError("Version must not include underscores")
+    if any('_' in name for name in type_names):
+        raise ValueError("Type names must not include underscores")
+
     for size in sizes:
-        for type in types:
+        for type, type_name in zip(types, type_names):
             # use pathlib to create the file path
             size_str = str(size).zfill(max_digits)
-            file = os.path.join(path, f'{name}_{version}_{type}_{size_str}.json')
+            file = os.path.join(path, f'{name}_{version}_{type_name}_{size_str}.json')
             os.makedirs(os.path.dirname(file), exist_ok=True)
             generate_json_file(file, num_lists, lambda: generate_unsorted_list(size, type))
 
