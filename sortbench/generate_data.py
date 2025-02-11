@@ -2,7 +2,7 @@ import argparse
 import math
 import random
 
-import data_utils
+import util.data_utils as data_utils
 
 def main():
     parser = argparse.ArgumentParser(description="Generate benchmark data.")

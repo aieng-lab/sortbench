@@ -1,4 +1,4 @@
-from result_utils import check_if_result_available
+from util.result_utils import check_if_result_available
 
 from openai import OpenAI
 

@@ -7,11 +7,15 @@ SortBench is a sorting-based benchmark for Large Language Models (LLMs).
 To create the data, run the following command:
 
 ```bash
-python sortbench/generate_data.py --mode=basic --version=v1.0 --random_seed=1
-python sortbench/generate_data.py --mode=advanced --version=v1.0 --random_seed=1
+python sortbench/generate_data.py --mode=basic --version=v1.0 --random_seed=42415
+python sortbench/generate_data.py --mode=advanced --version=v1.0 --random_seed=56671
 ```
 
-We decided to use the main version number of random seed to enable reproducibility. Note that different platforms (e.g., operating systems, python version, or CPUs) may yield different results, even if the seed is fixed.
+For reproducibiliy, each version of the benchmark uses a different, random but fixed seed. Note that different platforms (e.g., operating systems, python version, or CPUs) may yield different results, even if the seed is fixed. You can find the seeds we used below. 
+
+| Version | Basic Seed | Advanced Seed |
+| ------- | ---------- | ------------- |
+| v1.0    | 42415      | 56671         |
 
 ## Running the benchmark
 
@@ -21,3 +25,13 @@ To run the benchmark, run the following command:
 python sortbench/create_results.py --mode=basic --version=v1.0 --model_names gpt-4o gpt-4o-mini
 python sortbench/create_results.py --mode=advanced --version=v1.0 --model_names gpt-4o gpt-4o-mini
 ```
+
+## Evaluating the results
+
+To evaluate the results, run the following command:
+
+```bash
+python sortbench/create_results.py --mode=basic --version=v1.0
+python sortbench/create_results.py --mode=advanced --version=v1.0
+```
+

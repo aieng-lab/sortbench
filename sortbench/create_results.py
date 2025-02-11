@@ -1,9 +1,9 @@
 import argparse
 import os
 
-import result_utils
-import data_utils
-import inference_utils
+import util.result_utils as result_utils
+import util.data_utils as data_utils
+import util.inference_utils as inference_utils
 
 
 def main():
