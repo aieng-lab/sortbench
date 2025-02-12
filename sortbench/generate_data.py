@@ -11,7 +11,7 @@ def main():
     parser.add_argument('--mode', type=str, default="basic", help='Mode for the benchmark data, i.e., basic or advanced (default: basic)')
     parser.add_argument('--version', type=str, default="v1.0", help='Version of the benchmark data (default: v1.0)')
     parser.add_argument('--random_seed', type=int, default=None, help='Random seed for data generation (default: None)')
-    parser.add_argument('--num_samples', type=int, default=100, help='Number of lists to generate (default: 100)')
+    parser.add_argument('--num_samples', type=int, default=10, help='Number of lists to generate (default: 10)')
 
     args = parser.parse_args()
 
@@ -53,7 +53,7 @@ def main():
         raise ValueError("Mode must be 'basic' or 'advanced'")
 
     # Sizes are fixed for now
-    sizes = [int(math.pow(2, i)) for i in range(1, 11)]
+    sizes = [int(math.pow(2, i)) for i in range(1, 9)]
 
     # Configure name
     name = args.name+'_'+args.mode
