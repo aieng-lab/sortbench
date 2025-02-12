@@ -2,7 +2,33 @@
 
 SortBench is a sorting-based benchmark for Large Language Models (LLMs).
 
-## Creating data
+## Reproducing the benchmark
+
+In the following we describe the steps to reproduce our results. Everything we describe works as is on Ubuntu 24.04 LTS. 
+
+### Setting up the environment
+
+First, checkout the repository from GitHub:
+
+```bash
+git clone git@github.com:aieng-lab/sortbench.git
+cd sortbench
+```
+
+We recommend using a virtual environment to run the benchmark. To create a virtual environment, run the following command:
+
+```bash
+python3 -m venv .venv
+```
+
+We can now activate the virtual environment and install the required packages:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Creating data
 
 To create the data, run the following command:
 
@@ -17,7 +43,7 @@ For reproducibiliy, each version of the benchmark uses a different, random but f
 | ------- | ---------- | ------------- |
 | v1.0    | 42415      | 56671         |
 
-## Running the benchmark
+### Running the benchmark
 
 To run the benchmark, run the following command:
 
@@ -26,7 +52,7 @@ python sortbench/create_results.py --mode=basic --version=v1.0 --model_names gpt
 python sortbench/create_results.py --mode=advanced --version=v1.0 --model_names gpt-4o gpt-4o-mini
 ```
 
-## Evaluating the results
+### Evaluating the results
 
 To evaluate the results, run the following command:
 
@@ -35,3 +61,16 @@ python sortbench/calculate_scores.py --mode=basic --version=v1.0 --csv_file="sco
 python sortbench/calculate_scores.py --mode=advanced --version=v1.0 --csv_file="scores/scores_basic_v1.0.csv"
 ```
 
+## Running the Notebooks
+
+To use the Jupyter Notebooks we provide in the `notebooks` folder, you need to install additional dependencies. They are provided in the `notebooks/requirements.txt` file. You can install them in the same virtual environment as above (needs to be activated!) as follows:
+
+```bash
+pip install -r notebooks/requirements.txt
+```
+
+Afterwards, you can run the Jupyter Notebook server by running the following command:
+
+```bash
+jupyter notebook
+```
