@@ -21,33 +21,32 @@ def main():
             raise ValueError("Random seed must be a non-negative integer")
         random.seed(args.random_seed)
 
-    kwargs_normal_range = {'min_value': 0, 'max_value': 10000}
-    kwargs_large_range = {'min_value': 10000000, 'max_value': 10010000}
-    kwargs_neg_range = {'min_value': -10000, 'max_value': 10000}
+    kwargs_normal_range = {'min_value': 0, 'max_value': 1000}
+    kwargs_large_range = {'min_value': 10000000, 'max_value': 10001000}
+    kwargs_neg_range = {'min_value': -10000, 'max_value': 1000}
     kwargs_small_float = {'min_value': 0, 'max_value': 0.0001}
+    kwargs_number_words = {'min_value': 0, 'max_value': 1000}
 
     # Set types based on mode
     if args.mode == 'basic':
         types = ['integer', 'float', 'word']
-        type_names = ['Int-0:10000', 'Float-0:10000', 'English']
+        type_names = ['Int-0:1000', 'Float-0:1000', 'English']
         
         gen_kwargs = [kwargs_normal_range, kwargs_normal_range, {}]
     elif args.mode == 'advanced':
         types = ['integer', 'integer', 'float', 'float', 'float',
-                 'string', 'string', 'string', 'prefix_word', 'number_string']
-        type_names = ['Integers-10000000:10010000',
-                      'Int-n10000:10000',
-                      'Float-10000000:10010000',
+                 'string_lower', 'string_upper', 'string', 'prefix_word', 'number_string']
+        type_names = ['Integers-10000000:10001000',
+                      'Int-n1000:1000',
+                      'Float-10000000:10001000',
                       'Float-0:0.0001',
-                      'Float-n10000-10000',
+                      'Float-n1000-1000',
                       'ascii',
                       'ASCII',
                       'AsCiI',
                       'PrfxEnglish',
                       'NumberWords']
-        print(len(types))
-        print(len(type_names))
-        gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, {}, {}]
+        gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, {}, kwargs_number_words]
         
                       
     else:
