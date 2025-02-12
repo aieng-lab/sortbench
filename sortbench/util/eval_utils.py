@@ -129,7 +129,7 @@ def evaluate_results(results):
         for cur_result in config_data['results']:
             model = cur_result['model']
             for list_name, sorted_list in cur_result['sorted_lists'].items():
-                sorted_list, is_cropped, is_cleaned = eval_str_list(sorted_list)
+                sorted_list, is_cropped, _ = eval_str_list(sorted_list)
                 unsorted_list = unsorted_lists[list_name]
                 if sorted_list is None:
                     unordered_pairs_before = None
@@ -139,6 +139,7 @@ def evaluate_results(results):
                     count_missing = None
                     count_additional = None
                     len_diff = None
+                    is_parsed = False
                 else:
                     unordered_pairs_before = count_unordered_pairs(unsorted_list)
                     unordered_pairs_after = count_unordered_pairs(sorted_list)
@@ -147,6 +148,7 @@ def evaluate_results(results):
                     count_missing = count_missing_items(unsorted_list, sorted_list)
                     count_additional = count_additional_items(unsorted_list, sorted_list)
                     len_diff = len(unsorted_list)-len(sorted_list)
+                    is_parsed = True
     
                 results_with_eval.append({
                     'Benchmark': benchmark_name,
@@ -163,9 +165,45 @@ def evaluate_results(results):
                     'Missing Items': count_missing,
                     'Additional Items': count_additional,
                     'Length Difference': len_diff,
-                    'Cropped': is_cropped,
-                    'Cleaned': is_cleaned
+                    'Parsed': is_parsed,
+                    'Cropped': is_cropped
                 })
     
     df_results = pd.DataFrame(results_with_eval)
+    return df_results
+
+def normalize_metrics(df_results):
+    """
+    Normalize the metrics to be percentages of the size of the list. In case of pairs, we normalize by the number of pairs in the list.
+
+    Parameters:
+    - df_results: DataFrame with the results of the benchmark
+
+    Returns:
+    - df_results: DataFrame with the normalized metrics
+    """
+
+    df_results['Unordered Pairs (%)'] = df_results['Unordered Pairs After']/(df_results['Size']*(df_results['Size']-1)/2)
+    df_results['Unordered Neighbors (%)'] = df_results['Unordered Neighbors After']/df_results['Size']
+    df_results['Missing Items (%)'] = df_results['Missing Items']/df_results['Size']
+    df_results['Additional Items (%)'] = df_results['Additional Items']/df_results['Size']
+    df_results['Absolute Length Difference (%)'] = abs(df_results['Length Difference']/df_results['Size'])
+    return df_results
+
+def compute_total_score(df_results):
+    """
+    Compute the total score for each benchmark result.
+
+    Parameters:
+    - df_results: DataFrame with the results of the benchmark
+
+    Returns:
+    - df_results: DataFrame with the total score for each benchmark result
+    """
+    df_results['Validity Score'] = 0.0
+    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==True), 'Validity Score'] = 0.5
+    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False), 'Validity Score'] = 1.0
+    df_results['Sorting Score'] = 1-(df_results['Unordered Pairs (%)'] + df_results['Unordered Neighbors (%)'])/2
+    df_results['Faithfulness Score'] = 1-(df_results['Missing Items (%)'] + df_results['Additional Items (%)'])/2
+    df_results['SortBench Score'] = df_results['Validity Score']*(df_results['Sorting Score'] + df_results['Faithfulness Score'])/2
     return df_results
