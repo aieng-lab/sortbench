@@ -21,13 +21,35 @@ def main():
             raise ValueError("Random seed must be a non-negative integer")
         random.seed(args.random_seed)
 
+    kwargs_normal_range = {'min_value': 0, 'max_value': 10000}
+    kwargs_large_range = {'min_value': 10000000, 'max_value': 10010000}
+    kwargs_neg_range = {'min_value': -10000, 'max_value': 10000}
+    kwargs_small_float = {'min_value': 0, 'max_value': 0.0001}
+
     # Set types based on mode
     if args.mode == 'basic':
-        types = ['integer', 'float', 'string', 'word']
-        type_names = ['integers-0:100', 'floats-0:100', 'strings', 'words']
+        types = ['integer', 'float', 'word']
+        type_names = ['Int-0:10000', 'Float-0:10000', 'English']
+        
+        gen_kwargs = [kwargs_normal_range, kwargs_normal_range, {}]
     elif args.mode == 'advanced':
-        types = ['number_string', 'prefix_string', 'prefix_words']
-        type_names = ['number_strings', 'prefix_strings', 'prefix_words']
+        types = ['integer', 'integer', 'float', 'float', 'float',
+                 'string', 'string', 'string', 'prefix_word', 'number_string']
+        type_names = ['Integers-10000000:10010000',
+                      'Int-n10000:10000',
+                      'Float-10000000:10010000',
+                      'Float-0:0.0001',
+                      'Float-n10000-10000',
+                      'ascii',
+                      'ASCII',
+                      'AsCiI',
+                      'PrfxEnglish',
+                      'NumberWords']
+        print(len(types))
+        print(len(type_names))
+        gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, {}, {}]
+        
+                      
     else:
         raise ValueError("Mode must be 'basic' or 'advanced'")
 
@@ -38,7 +60,7 @@ def main():
     name = args.name+'_'+args.mode
 
     # Generate benchmark data
-    data_utils.generate_benchmark_data(path=args.path, name=name, version=args.version, num_lists=args.num_samples, sizes=sizes, types=types, type_names=type_names)
+    data_utils.generate_benchmark_data(path=args.path, name=name, version=args.version, num_lists=args.num_samples, sizes=sizes, types=types, type_names=type_names, gen_kwargs=gen_kwargs)
 
 if __name__ == "__main__":
     main()

@@ -7,7 +7,7 @@ import string
 
 from nltk.corpus import wordnet
 
-def generate_unsorted_list(n=10, type='integer', **kwargs):
+def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
     """
     Generate a list of n random values of the given type. The following types are supported:
     - integer: random integers between min_value and max_value
@@ -16,13 +16,13 @@ def generate_unsorted_list(n=10, type='integer', **kwargs):
     - word: random words from the NLTK wordnet corpus. Words with apostrophes are excluded.
     - number_string: random number strings between min_value and max_value
     - prefix_string: random strings of 8 characters with a prefix of 3 characters that are equal
-    - prefix_words: random words from the NLTK wordnet corpus with a prefix of 3 characters that are equal. Words with apostrophes are excluded.
+    - prefix_word: random words from the NLTK wordnet corpus with a prefix of 3 characters that are equal. Words with apostrophes are excluded.
 
     The random seed should be controlled by the caller if reproducibility is desired. Use random.seed() from the random module.
 
     Parameters:
     - n: the number of values to generate (default: 10)
-    - type: the type of the values to generate. Possible values are: 'integer', 'float', 'string', 'word', 'number_string', 'prefix_string', 'prefix_words' (default: 'integer')
+    - lst_type: the type of the values to generate. Possible values are: 'integer', 'float', 'string', 'word', 'number_string', 'prefix_string', 'prefix_words' (default: 'integer')
     - min_value: the minimum value for the generated values (optional, only for numeric types, default: 0)
     - max_value: the maximum value for the generated values (optional, only for numeric types, default: 100)
 
@@ -31,34 +31,34 @@ def generate_unsorted_list(n=10, type='integer', **kwargs):
     """
     if n<=0:
         raise ValueError("n must be a positive integer")
-    if type not in ['integer', 'float', 'string', 'word', 'number_string', 'prefix_string', 'prefix_words']:
-        raise ValueError("Type must be 'integer', 'float', 'string', 'word', 'number_string', 'prefix_string', or 'prefix_words'")
+    if lst_type not in ['integer', 'float', 'string', 'word', 'number_string', 'prefix_string', 'prefix_word']:
+        raise ValueError(f"Type must be 'integer', 'float', 'string', 'word', 'number_string', 'prefix_string', or 'prefix_word', got: {lst_type}")
     min_value = kwargs.get('min_value', 0)
     max_value = kwargs.get('max_value', 100)
-    if not isinstance(min_value, int) or isinstance(min_value, float):
+    if not (isinstance(min_value, int) or isinstance(min_value, float)):
         raise ValueError("min_value must be an integer or float")
-    if not isinstance(max_value, int) or isinstance(max_value, float):
-        raise ValueError("max_value must be an integer or float")
+    if not (isinstance(max_value, int) or isinstance(max_value, float)):
+        raise ValueError(f"max_value must be an integer or float")
     if min_value >= max_value:
         raise ValueError("min_value must be less than max_value")
 
-    if type == 'integer':    
+    if lst_type == 'integer':
         return [random.randint(min_value, max_value) for _ in range(n)]
-    elif type == 'float':
+    elif lst_type == 'float':
         return [random.uniform(min_value, max_value) for _ in range(n)]
-    elif type == 'string':
+    elif lst_type == 'string':
         return [''.join(random.choices(string.ascii_letters, k=5)) for _ in range(n)]
-    elif type == 'word':
+    elif lst_type == 'word':
         words = list(set(wordnet.words()))
         words = [word for word in words if "'" not in word]
         return random.sample(words, n)
-    elif type == 'number_string':
+    elif lst_type == 'number_string':
         p = inflect.engine()
         return [p.number_to_words(random.randint(min_value, max_value)) for _ in range(n)]
-    elif type == 'prefix_string':
+    elif lst_type == 'prefix_string':
         prefix_letter = random.choice(string.ascii_letters)
         return [f"{prefix_letter*3}{''.join(random.choices(string.ascii_letters, k=5))}"  for _ in range(n)]
-    elif type == 'prefix_words':
+    elif lst_type == 'prefix_word':
         prefix_letter = random.choice(string.ascii_letters)
         words = list(set(wordnet.words()))
         words = [word for word in words if "'" not in word]
@@ -82,7 +82,7 @@ def generate_json_file(file, num_lists, generator):
     with gzip.open(file, 'wt', encoding="UTF-8") as f:
         f.write(json.dumps(data))
 
-def generate_benchmark_data(path, name, version, num_lists, sizes, types, type_names=None):
+def generate_benchmark_data(path, name, version, num_lists, sizes, types, type_names=None, gen_kwargs=None):
     """
     Generate benchmark data for a given name, sizes, and types.
     The data is written to the folder 'benchmark_data', with one JSON file per size and type.
@@ -95,24 +95,31 @@ def generate_benchmark_data(path, name, version, num_lists, sizes, types, type_n
     - sizes: a list of sizes for the lists
     - types: a list of types for the lists
     - type_names: a list of names for the types. Uses types if None. Names must not include underscores. (optional, default: None)
+    - gen_kwargs: a list of dictionaries with keyword arguments for the generator function. (optional, default: None)
     """
     max_digits = len(str(max(sizes)))
     if type_names is None:
         type_names = types
+    if len(types) != len(type_names):
+        raise ValueError("Types and type names must have the same length")
     if len(name.split('_')) != 2:
         raise ValueError("Name must include a single underscore (between name of benchmark and mode)")
     if '_' in version:
         raise ValueError("Version must not include underscores")
     if any('_' in name for name in type_names):
         raise ValueError("Type names must not include underscores")
+    if gen_kwargs is None:
+        gen_kwargs = [{} for _ in range(len(types))]
+    elif len(gen_kwargs) != len(types):
+        raise ValueError("gen_kwargs must have the same length as types")
 
     for size in sizes:
-        for type, type_name in zip(types, type_names):
+        for type, type_name, cur_gen_kwargs in zip(types, type_names, gen_kwargs):
             # use pathlib to create the file path
             size_str = str(size).zfill(max_digits)
             file = os.path.join(path, f'{name}_{version}_{type_name}_{size_str}.json.gz')
             os.makedirs(os.path.dirname(file), exist_ok=True)
-            generate_json_file(file, num_lists, lambda: generate_unsorted_list(size, type))
+            generate_json_file(file, num_lists, lambda: generate_unsorted_list(size, type, **cur_gen_kwargs))
 
 def load_data_local(file_path='benchmark_data', name='sortbench', mode='basic', version='v1.0'):
     """
