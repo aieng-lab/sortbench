@@ -31,10 +31,6 @@ def main():
     configs = data_utils.load_data_local(file_path=args.data_path, name=args.name, mode=args.mode, version=args.version)
     results = result_utils.load_results_from_disk(file_path=args.result_path)
 
-    # drop all except first 3 configs for testing
-    configs = {k: configs[k] for k in list(configs.keys())[:3]}
-
-
     for model in models:
         results = inference_utils.run_configs_for_single_model(configs, api_key=OPENAI_API_KEY, model=model, results=results)
         result_utils.write_results_to_disk(results, file_path='benchmark_results')
