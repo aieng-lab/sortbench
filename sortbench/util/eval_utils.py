@@ -170,6 +170,8 @@ def evaluate_results(results):
                 })
     
     df_results = pd.DataFrame(results_with_eval)
+    df_results = normalize_metrics(df_results)
+    df_results = compute_total_score(df_results)
     return df_results
 
 def normalize_metrics(df_results):
