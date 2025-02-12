@@ -35,18 +35,17 @@ def main():
         gen_kwargs = [kwargs_normal_range, kwargs_normal_range, {}]
     elif args.mode == 'advanced':
         types = ['integer', 'integer', 'float', 'float', 'float',
-                 'string_lower', 'string_upper', 'string', 'prefix_word', 'number_string']
+                 'string_lower', 'string', 'prefix_word', 'number_string']
         type_names = ['Integers-10000000:10001000',
                       'Int-n1000:1000',
                       'Float-10000000:10001000',
                       'Float-0:0.0001',
                       'Float-n1000-1000',
-                      'ascii',
-                      'ASCII',
-                      'AsCiI',
+                      'ASCII-Lower',
+                      'ASCII-Cased',
                       'PrfxEnglish',
                       'NumberWords']
-        gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, {}, kwargs_number_words]
+        gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, kwargs_number_words]
         
                       
     else:
