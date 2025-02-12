@@ -101,8 +101,8 @@ def eval_str_list(str_list):
             try:
                 sorted_list = eval(cleaned_quote_list)
             except:
-                print('Error: Could not evaluate the cropped sorted list, not valid python')
-                print(cleaned_quote_list)
+                #print('Error: Could not evaluate the cropped sorted list, not valid python')
+                pass
     return (sorted_list, is_cropped, is_cleaned)
     
 
@@ -130,35 +130,42 @@ def evaluate_results(results):
             model = cur_result['model']
             for list_name, sorted_list in cur_result['sorted_lists'].items():
                 sorted_list, is_cropped, is_cleaned = eval_str_list(sorted_list)
-
-            unsorted_list = unsorted_lists[list_name]
-            unordered_pairs_before = count_unordered_pairs(unsorted_list)
-            unordered_pairs_after = count_unordered_pairs(sorted_list)
-            unordered_neighbors_before = count_unordered_neighbors(unsorted_list)
-            unordered_neighbors_after = count_unordered_neighbors(sorted_list)
-            count_missing = count_missing_items(unsorted_list, sorted_list)
-            count_additional = count_additional_items(unsorted_list, sorted_list)
-            len_diff = len(unsorted_list)-len(sorted_list)
-            #print(cur_result)
-            #print(config_data)
-   
-            results_with_eval.append({
-                'Benchmark': benchmark_name,
-                'Mode': benchmark_mode,
-                'Version': benchmark_version,
-                'Model': model,
-                'Type': data_type,
-                'Size': list_length,
-                'Unordered Pairs Before': unordered_pairs_before,
-                'Unordered Pairs After': unordered_pairs_after,
-                'Unordered Neighbors Before': unordered_neighbors_before,
-                'Unordered Neighbors After': unordered_neighbors_after,
-                'Missing Items': count_missing,
-                'Additional Items': count_additional,
-                'Length Difference': len_diff,
-                'Cropped': is_cropped,
-                'Cleaned': is_cleaned
-            })
+                unsorted_list = unsorted_lists[list_name]
+                if sorted_list is None:
+                    unordered_pairs_before = None
+                    unordered_pairs_after = None
+                    unordered_neighbors_before = None
+                    unordered_neighbors_after = None
+                    count_missing = None
+                    count_additional = None
+                    len_diff = None
+                else:
+                    unordered_pairs_before = count_unordered_pairs(unsorted_list)
+                    unordered_pairs_after = count_unordered_pairs(sorted_list)
+                    unordered_neighbors_before = count_unordered_neighbors(unsorted_list)
+                    unordered_neighbors_after = count_unordered_neighbors(sorted_list)
+                    count_missing = count_missing_items(unsorted_list, sorted_list)
+                    count_additional = count_additional_items(unsorted_list, sorted_list)
+                    len_diff = len(unsorted_list)-len(sorted_list)
+    
+                results_with_eval.append({
+                    'Benchmark': benchmark_name,
+                    'Mode': benchmark_mode,
+                    'Version': benchmark_version,
+                    'Model': model,
+                    'Type': data_type,
+                    'Size': list_length,
+                    'List Name': list_name,
+                    'Unordered Pairs Before': unordered_pairs_before,
+                    'Unordered Pairs After': unordered_pairs_after,
+                    'Unordered Neighbors Before': unordered_neighbors_before,
+                    'Unordered Neighbors After': unordered_neighbors_after,
+                    'Missing Items': count_missing,
+                    'Additional Items': count_additional,
+                    'Length Difference': len_diff,
+                    'Cropped': is_cropped,
+                    'Cleaned': is_cleaned
+                })
     
     df_results = pd.DataFrame(results_with_eval)
     return df_results
