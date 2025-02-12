@@ -47,7 +47,7 @@ def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
         raise ValueError("min_value must be less than max_value")
 
     if lst_type == 'integer':
-        return [random.sample(range(min_value, max_value), 1)[0] for _ in range(n)]
+        return random.sample(range(min_value, max_value), n)
     elif lst_type == 'float':
         flt_list = []
         while len(flt_list) < n:
@@ -64,7 +64,7 @@ def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
         return random.sample(words, n)
     elif lst_type == 'number_string':
         p = inflect.engine()
-        numbers = [random.sample(range(min_value, max_value), 1)[0] for _ in range(n)]
+        numbers = random.sample(range(min_value, max_value), n)
         return [p.number_to_words(number) for number in numbers]
     elif lst_type == 'prefix_string':
         prefix_letter = random.choice(string.ascii_letters)
