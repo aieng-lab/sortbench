@@ -27,6 +27,8 @@ def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
     - lst_type: the type of the values to generate. Possible values are: 'integer', 'float', 'string', 'word', 'number_string', 'prefix_string', 'prefix_words' (default: 'integer')
     - min_value: the minimum value for the generated values (optional, only for numeric types, default: 0)
     - max_value: the maximum value for the generated values (optional, only for numeric types, default: 100)
+    - duplicates: if set to true, each item appears twice in the list. Only possible with even n. (optional, default: False)
+    - sorted: if set to true, the list is sorted in ascending order (optional, default: False)
 
     Returns:
     - a list of n values of the given type
@@ -45,9 +47,15 @@ def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
         raise ValueError(f"max_value must be an integer or float")
     if min_value >= max_value:
         raise ValueError("min_value must be less than max_value")
+    duplicates = kwargs.get('duplicates', False)
+    if duplicates:
+        if n % 2 != 0:
+            raise ValueError("n must be an even number for duplicates")
+    sorted = kwargs.get('sorted', False)
 
+    result = []
     if lst_type == 'integer':
-        return random.sample(range(min_value, max_value), n)
+        result = random.sample(range(min_value, max_value), n)
     elif lst_type == 'float':
         flt_list = []
         while len(flt_list) < n:
@@ -55,29 +63,38 @@ def generate_unsorted_list(n=10, lst_type='integer', **kwargs):
             flt_list.extend(new_vals)
             flt_list = list(set(flt_list))
         random.shuffle(flt_list)
-        return flt_list
+        result = flt_list
     elif lst_type == 'string' or lst_type == 'string_lower' or lst_type == 'string_upper':
         return generate_string_list(n, lst_type)
     elif lst_type == 'word':
         words = list(set(wordnet.words()))
         words = [word for word in words if "'" not in word]
-        return random.sample(words, n)
+        result = random.sample(words, n)
     elif lst_type == 'number_string':
         p = inflect.engine()
         numbers = random.sample(range(min_value, max_value), n)
-        return [p.number_to_words(number) for number in numbers]
+        result = [p.number_to_words(number) for number in numbers]
     elif lst_type == 'prefix_string':
         prefix_letter = random.choice(string.ascii_letters)
         str_list = generate_string_list(n, 'string')
-        return [f"{prefix_letter*3}{string}" for string in str_list]
+        result = [f"{prefix_letter*3}{string}" for string in str_list]
     elif lst_type == 'prefix_word':
         prefix_letter = random.choice(string.ascii_letters)
         words = list(set(wordnet.words()))
         words = [word for word in words if "'" not in word]
         word_smpl = random.sample(words, n)
-        return [f"{prefix_letter*3}{word}" for word in word_smpl]
+        result = [f"{prefix_letter*3}{word}" for word in word_smpl]
     else:
         raise ValueError("Unknown type")
+    
+    if duplicates:
+        # use only first half of list and duplicate it
+        result = [item for sublist in zip(result[:int(n/2)], result[:int(n/2)]) for item in sublist]
+
+    if sorted:
+        result.sort()
+        
+    return result
     
 def generate_string_list(n, lst_type):
     """

@@ -46,7 +46,14 @@ def main():
                       'PrfxEnglish',
                       'NumberWords']
         gen_kwargs = [kwargs_large_range, kwargs_neg_range, kwargs_large_range, kwargs_small_float, kwargs_neg_range, {}, {}, {}, kwargs_number_words]
-        
+    elif args.mode == 'debug':
+        types = ['integer', 'float', 'word', 'integer', 'float', 'word']
+        type_names = ['Int-Sorted', 'Float-Sorted', 'English-Sorted', 'Int-Duplicate', 'Float-Duplicate', 'English-Duplicate']
+        kwargs_normal_range_sorted = kwargs_normal_range.copy()
+        kwargs_normal_range_sorted['sorted'] = True
+        kwargs_normal_range_duplicates = kwargs_normal_range.copy()
+        kwargs_normal_range_duplicates['duplicates'] = True
+        gen_kwargs = [kwargs_normal_range_sorted, kwargs_normal_range_sorted, {'sorted': True}, kwargs_normal_range_duplicates, kwargs_normal_range_duplicates, {'duplicates': True}]
                       
     else:
         raise ValueError("Mode must be 'basic' or 'advanced'")
