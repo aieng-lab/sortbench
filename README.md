@@ -53,6 +53,18 @@ export OPENAI_API_KEY="your_openai_api_key"
 export INNCUBE_API_KEY="your_inncube_api_key"
 ```
 
+We currently support the following models from Open AI:
+- `gpt-4o`: OpenAI's GPT-4 (large)
+- `gpt-4o-mini`: OpenAI's GPT-4 (mini)
+- `gpt-3.5-turbo`: OpenAI's GPT-3.5-turbo
+- `o1`: OpenAI's o1 model
+
+The Inncube cluster currently hosts the following models:
+- `llama3.1`: Meta's LLAMA 3.1
+- `gemma2`: Google's Gemma 2
+- `qwen2.5`: Alibaba's Qwen 2.5
+- `deepseekr1`: DeepSeek's r1 model
+
 To run the benchmark, run the following command:
 
 ```bash
@@ -60,6 +72,8 @@ python sortbench/create_results.py --mode=basic --version=v1.0 --model_names gpt
 python sortbench/create_results.py --mode=advanced --version=v1.0 --model_names gpt-4o gpt-4o-mini
 python sortbench/create_results.py --mode=debug --version=v1.0 --model_names gpt-4o gpt-4o-mini
 ```
+
+If you want to add your own models or endpoints to the benchmark, you need to modify the sortbench/util/inference_utils.py accordingly. 
 
 ### Evaluating the results
 
