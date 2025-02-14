@@ -46,6 +46,13 @@ For reproducibiliy, each version of the benchmark uses a different, random but f
 
 ### Running the benchmark
 
+To run the benchmark, you need to have valid API keys for the inference endpoints. Currently, we use models from OpenAI and models we host locally in Passau at an inference endpoint in the Inncube cluster. For both, the API keys are required. You can set them as environment variables:
+
+```bash
+export OPENAI_API_KEY="your_openai_api_key"
+export INNCUBE_API_KEY="your_inncube_api_key"
+```
+
 To run the benchmark, run the following command:
 
 ```bash
