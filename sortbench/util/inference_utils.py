@@ -2,7 +2,8 @@ from util.result_utils import check_if_result_available
 
 from openai import OpenAI
 
-_OPENAI_API_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
+_OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
+_INNCUBE_MODELS = ["llama3.1", "gemma2", "qwen2.5", "deepseekr1"]
 
 def is_model_supported(model):
     """
@@ -11,19 +12,10 @@ def is_model_supported(model):
     Parameters:
     - model (str): the model name
     """
-    return model in _OPENAI_API_MODELS
+    return model in _OPENAI_MODELS+_INNCUBE_MODELS
 
-def add_openai_api_model(model):
-    """
-    Add a model to the list of OpenAI API models.
-    
-    Parameters:
-    - model (str): the model name
-    """
-    if model not in _OPENAI_API_MODELS:
-        _OPENAI_API_MODELS.append(model)
 
-def sort_list_with_openai_api(unsorted_list, api_key, model, system_prompt=None, prompt=None):
+def sort_list_with_openai_api(unsorted_list, api_key, model, url=None, system_prompt=None, prompt=None):
     """
     Calls the OpenAI API to sort a list.
 
@@ -45,7 +37,11 @@ def sort_list_with_openai_api(unsorted_list, api_key, model, system_prompt=None,
         return None
     
     # run inference
-    client = OpenAI(api_key=api_key)
+    if url is None:
+        client = OpenAI(api_key=api_key)
+    else:
+        client = OpenAI(api_key=api_key, base_url=url)
+
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -87,8 +83,13 @@ def run_configs_for_single_model(configs, api_key, model="gpt-4o-mini", verbose=
         for unsorted_list_name, unsorted_list in lists.items():
             if verbose:
                 print(f"Sorting list {unsorted_list_name} using model {model} for config {config_name}")
-            if model in _OPENAI_API_MODELS:
+            if model in _OPENAI_MODELS:
+                api_key = os.getenv("OPENAI_API_KEY")
                 sorted_list = sort_list_with_openai_api(unsorted_list, api_key, model=model)
+            if model in _INNCUBE_MODELS:
+                api_key = os.getenv("INNCUBE_API_KEY")
+                endpoint_url = "https://llms-inference.innkube.fim.uni-passau.de"
+                sorted_list = sort_list_with_openai_api(unsorted_list, api_key, model=model, url=endpoint_url)
             else:
                 raise ValueError(f"Model {model} not supported")
             cur_results['sorted_lists'][unsorted_list_name] = sorted_list
