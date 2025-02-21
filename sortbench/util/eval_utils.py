@@ -83,6 +83,8 @@ def eval_str_list(str_list):
     """
     is_cropped = False
     is_cleaned = False
+    is_list = False
+    has_ellipsis = False
     sorted_list = None
     try:
         sorted_list = eval(str_list)
@@ -103,7 +105,21 @@ def eval_str_list(str_list):
             except:
                 #print('Error: Could not evaluate the cropped sorted list, not valid python')
                 pass
-    return (sorted_list, is_cropped, is_cleaned)
+
+    if type(sorted_list)==list:
+        is_list = True
+    else:
+        if type(sorted_list)==tuple:
+            if str_list.startswith('(\''):
+                sorted_list = list(sorted_list)
+            elif str_list.startswith('([') or str_list.endswith('],'):
+                sorted_list = sorted_list[0]
+            is_list = False
+    if sorted_list is not None and type(sorted_list[-1])==type(...):
+        sorted_list = sorted_list[:-1]
+        has_ellipsis = True
+            
+    return (sorted_list, is_cropped, is_cleaned, is_list, has_ellipsis)
     
 
 def evaluate_results(results):
@@ -129,7 +145,7 @@ def evaluate_results(results):
         for cur_result in config_data['results']:
             model = cur_result['model']
             for list_name, sorted_list in cur_result['sorted_lists'].items():
-                sorted_list, is_cropped, _ = eval_str_list(sorted_list)
+                sorted_list, is_cropped, _, is_list, has_ellipsis = eval_str_list(sorted_list)
                 unsorted_list = unsorted_lists[list_name]
                 if sorted_list is None:
                     unordered_pairs_before = None
@@ -166,7 +182,9 @@ def evaluate_results(results):
                     'Additional Items': count_additional,
                     'Length Difference': len_diff,
                     'Parsed': is_parsed,
-                    'Cropped': is_cropped
+                    'Cropped': is_cropped,
+                    'IsList': is_list,
+                    'HasEllipsis': has_ellipsis
                 })
     
     df_results = pd.DataFrame(results_with_eval)
@@ -187,8 +205,8 @@ def normalize_metrics(df_results):
 
     df_results['Unordered Pairs (%)'] = df_results['Unordered Pairs After']/(df_results['Size']*(df_results['Size']-1)/2)
     df_results['Unordered Neighbors (%)'] = df_results['Unordered Neighbors After']/df_results['Size']
-    df_results['Missing Items (%)'] = df_results['Missing Items']/df_results['Size']
-    df_results['Additional Items (%)'] = df_results['Additional Items']/df_results['Size']
+    df_results['Missing Items (%)'] = (df_results['Missing Items']/df_results['Size']).clip(upper=1)
+    df_results['Additional Items (%)'] = (df_results['Additional Items']/df_results['Size']).clip(upper=1)
     df_results['Absolute Length Difference (%)'] = abs(df_results['Length Difference']/df_results['Size'])
     return df_results
 
@@ -204,7 +222,9 @@ def compute_total_score(df_results):
     """
     df_results['Validity Score'] = 0.0
     df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==True), 'Validity Score'] = 0.5
-    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False), 'Validity Score'] = 1.0
+    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['IsList']==False), 'Validity Score'] = 0.75
+    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['HasEllipsis']==True), 'Validity Score'] = 0.75
+    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['IsList']==True) & (df_results['HasEllipsis']==False), 'Validity Score'] = 1.0
     df_results['Sorting Score'] = 1-(df_results['Unordered Pairs (%)'] + df_results['Unordered Neighbors (%)'])/2
     df_results['Faithfulness Score'] = 1-(df_results['Missing Items (%)'] + df_results['Additional Items (%)'])/2
     df_results['SortBench Score'] = df_results['Validity Score']*(df_results['Sorting Score'] + df_results['Faithfulness Score'])/2
