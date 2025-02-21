@@ -13,8 +13,11 @@ def load_results_from_disk(file_path='benchmark_results'):
     results = {}
     for filename in os.listdir(file_path):
         with gzip.open(os.path.join(file_path, filename), 'rt', encoding="UTF-8") as f:
-            data = json.load(f)
-            results[filename] = data
+            try:
+                data = json.load(f)
+                results[filename] = data
+            except Exception as e:
+                print(f"Error while loading results from {filename}: {e}")
     return results
 
 def check_if_result_available(results, config_name, model_name):
@@ -47,6 +50,12 @@ def write_results_to_disk(results, file_path='benchmark_results', overwrite=Fals
         if not overwrite and os.path.exists(file):
             # read existing results and update
             with gzip.open(file, 'rt', encoding="UTF-8") as f:
+                try:
+                    existing_results = json.load(f)
+                except Exception as e:
+                    print(f"Error while loading results from {file}: {e}")
+                    print("Overwriting file.")
+                    existing_results = {}
                 existing_results = json.load(f)
                 existing_results['results'] = existing_results['results'] + config_results['results']
                 dict_to_write = existing_results
