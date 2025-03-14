@@ -1,5 +1,7 @@
 import argparse
 
+import pandas as pd
+
 import util.result_utils as result_utils
 import util.eval_utils as eval_utils
 
@@ -14,10 +16,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Load benchmark data and existing results
-    results = result_utils.load_results_from_disk(file_path=args.result_path)
-    df_results = eval_utils.evaluate_results(results)
-
+    config_names = result_utils.fetch_configs_from_results(file_path=args.result_path, name=args.name, mode=args.mode, version=args.version)
+    df_results = None
+    for config in config_names:
+        cur_results = result_utils.load_single_result_from_disk(config, file_path=args.result_path)
+        cur_df_results = eval_utils.evaluate_results(cur_results)
+        if df_results is None:
+            df_results = cur_df_results
+        else:
+            df_results = pd.concat([df_results, cur_df_results])
     df_results.to_csv(args.csv_file, index=False)
 
 
