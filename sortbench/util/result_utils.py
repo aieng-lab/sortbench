@@ -2,7 +2,46 @@ import gzip
 import json
 import os
 
-def load_results_from_disk(file_path='benchmark_results'):
+def load_data_local(file_path='benchmark_data', name='sortbench', mode='basic', version='v1.0'):
+    """
+    Load all data from a local directory into a dict of dicts.
+
+    Parameters:
+    file_path (str): path to directory containing data files (default: 'benchmark_data')
+    name (str): name of the benchmark data (default: 'sortbench')
+    mode (str): mode of the benchmark data (default: 'basic')
+    version (str): version of the benchmark data (default: 'v1.0')
+    """
+    configs = {}
+
+    # fetch all filenames from file_path and filter by name
+    filenames = os.listdir(file_path)
+    filenames = sorted([filename for filename in filenames if filename.startswith(f'{name}_{mode}_{version}_')])
+
+    # load all data into configs dict
+    for filename in filenames:
+        with gzip.open(f'{file_path}/{filename}', 'rt', encoding="UTF-8") as f:
+            data = json.load(f)
+            configs[filename] = data
+
+    return configs
+
+def fetch_configs_from_results(file_path='benchmark_results', name='sortbench', mode='basic', version='v1.0'):
+    """
+    Load all data from a local directory into a dict of dicts.
+
+    Parameters:
+    file_path (str): path to directory containing data files (default: 'benchmark_data')
+    name (str): name of the benchmark data (default: 'sortbench')
+    mode (str): mode of the benchmark data (default: 'basic')
+    version (str): version of the benchmark data (default: 'v1.0')
+    """
+    # fetch all filenames from file_path and filter by name
+    filenames = os.listdir(file_path)
+    filenames = sorted([filename for filename in filenames if filename.startswith(f'{name}_{mode}_{version}_')])
+    return filenames
+
+def load_results_from_disk(file_path='benchmark_results', name='sortbench', mode='basic', version='v1.0'):
     """
     Load all results from a local directory into a dict of dicts. Will return an empty dict if no results are found.
     Results are stored as gzipped JSON files.
@@ -11,7 +50,12 @@ def load_results_from_disk(file_path='benchmark_results'):
     file_path (str): path to directory containing results files (default: 'benchmark_results')
     """
     results = {}
-    for filename in os.listdir(file_path):
+
+    # fetch all filenames from file_path and filter by name
+    filenames = os.listdir(file_path)
+    filenames = sorted([filename for filename in filenames if filename.startswith(f'{name}_{mode}_{version}_')])
+
+    for filename in filenames:
         with gzip.open(os.path.join(file_path, filename), 'rt', encoding="UTF-8") as f:
             try:
                 data = json.load(f)
@@ -19,6 +63,51 @@ def load_results_from_disk(file_path='benchmark_results'):
             except Exception as e:
                 print(f"Error while loading results from {filename}: {e}")
     return results
+
+def load_single_result_from_disk(config_name, file_path='benchmark_results'):
+    """
+    Load all results from a local directory into a dict of dicts. Will return an empty dict if no results are found.
+    Results are stored as gzipped JSON files.
+
+    Parameters:
+    config_name (str): name of the config
+    file_path (str): path to directory containing results files (default: 'benchmark_results')
+    """
+    
+    filename = os.path.join(file_path, config_name)
+    
+    if not os.path.exists(filename):
+        return None
+    
+    results = {}
+    with gzip.open(filename, 'rt', encoding="UTF-8") as f:
+        try:
+            data = json.load(f)
+            results[config_name] = data
+        except Exception as e:
+            print(f"Error while loading results from {filename}: {e}")
+    return results
+
+def check_if_result_available_on_disk(results_path, config_name, model_name):
+    """
+    Check if results for a specific config and model are already available.
+
+    Parameters:
+    results (dict): dict containing all results
+    config_name (str): name of the config
+    model_name (str): name of the model
+    """
+    #create results file path
+    results = load_single_result_from_disk(config_name, results_path)
+    if results is None:
+        return False
+    else:
+        model_names = [result['model'] for result in results[config_name]['results']]
+        if model_name in model_names:
+            return True
+    return False
+
+
 
 def check_if_result_available(results, config_name, model_name):
     """
@@ -56,7 +145,6 @@ def write_results_to_disk(results, file_path='benchmark_results', overwrite=Fals
                     print(f"Error while loading results from {file}: {e}")
                     print("Overwriting file.")
                     existing_results = {}
-                existing_results = json.load(f)
                 existing_results['results'] = existing_results['results'] + config_results['results']
                 dict_to_write = existing_results
         else:

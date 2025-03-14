@@ -67,7 +67,52 @@ def count_additional_items(unsorted_list, sorted_list):
     additional_items = sorted_counter - unsorted_counter
     return sum(additional_items.values())
 
-def eval_str_list(str_list):
+def backtick_matcher(str_list):
+    backtick_matches = re.findall(r"```plaintext(.*)```", str_list, re.DOTALL)
+    if len(backtick_matches)>0:
+        matched_content = backtick_matches[-1].strip()
+        sorted_list = [s.strip() for s in matched_content.split('\n')]
+        return sorted_list
+    backtick_matches = re.findall(r"```(.*)```", str_list, re.DOTALL)
+    if len(backtick_matches)>0:
+        matched_content = backtick_matches[-1].strip()
+        sorted_list = [s.strip() for s in matched_content.split('\n')]
+        return sorted_list
+    return None
+
+def numbered_list_matcher(str_list):
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    # look for start in last three lines
+
+    lst = []
+    attempts = 0
+    while True:
+        has_enum = re.match(r'\d+\. ', lines[-1].strip())
+        if has_enum:
+            lst.insert(0, lines[-1].split(' ')[1].strip())
+        lines = lines[:-1]
+        attempts += 1
+        if len(lines)==0 or (not has_enum and len(lst)>0) or (not has_enum and attempts>3):
+            break
+    if len(lst)>0:
+        return lst
+    return None
+
+def curly_braces_matcher(str_list):
+    # the assumption is that this is now latex code and underscores are escaped
+    curly_braces_matches = re.findall(r"\{(.*)\}", str_list, re.DOTALL)
+    if len(curly_braces_matches)>0:
+        matched_content = curly_braces_matches[-1].strip()
+        matched_content = matched_content.replace('\\_', '_')
+        sorted_list = [s.strip() for s in matched_content.split(', ')]
+        return sorted_list
+    return None
+
+count_not_parsed = 0
+
+def eval_str_list(str_list, expected_type):
     """
     Tries to parse a list given as a string. If the string is not valid python, we try to things:
     1. We check if the string ends in a closing bracket. If not, we look for the last comma, crop the string there and add a new closing bracket.
@@ -84,27 +129,62 @@ def eval_str_list(str_list):
     is_cropped = False
     is_cleaned = False
     is_list = False
+    is_enum = False
     has_ellipsis = False
     sorted_list = None
+    global count_not_parsed
+    # strip deepseek reasoning
+    if str_list.startswith('<think>'):
+        str_list_org = str_list # keep original for debugging
+        str_list = str_list[str_list.find('</think>')+8:]
+        contains_brackets = str_list.count('[')>0
+        if contains_brackets:
+            str_list = str_list[str_list.find('['):].strip()
+        # remove ** from string
+        str_list = str_list.replace('**', '')
+        #str_list = str_list[str_list.find('['):].strip()
+
     try:
         sorted_list = eval(str_list)
     except:
-        if str_list[-1] != ']':
-            cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
-            is_cropped = True
+        # find last closing bracket and crop after and then first open bracket before
+        last_closing_bracket_index = str_list.rfind(']')
+        last_opening_bracket_index = str_list.rfind('[')
+        if last_closing_bracket_index==-1 and last_opening_bracket_index==-1:
+            sorted_list = numbered_list_matcher(str_list)
+            if sorted_list is not None:
+                is_enum = True
+            if sorted_list is None:
+                sorted_list = backtick_matcher(str_list)
+                if sorted_list is not None:
+                    is_backticks = True
+            if sorted_list is None:
+                sorted_list = curly_braces_matcher(str_list)
+                if sorted_list is not None:
+                    is_curly_braces = True
+            if sorted_list is None:
+                count_not_parsed +=1
+                #print(f'Original list {count_not_parsed}:', str_list)
+                #if count_not_parsed>20:
+                #    print('foo')
+                    #exit()
         else:
-            cropped_sorted_list = str_list # no cropping
-        try:
-            sorted_list = eval(cropped_sorted_list)
-        except:
-            cleaned_quote_list = re.sub("[a-zA-Z](?<!\')\'(?! |,)", "", cropped_sorted_list)
-            cleaned_quote_list = cleaned_quote_list[:-1] + "']"
-            is_cleaned = True
+            cropped_sorted_list = str_list[:(str_list.rfind(']')+1)]
+            cropped_sorted_list = cropped_sorted_list[cropped_sorted_list.rfind('['):]
+            is_cropped = True
             try:
-                sorted_list = eval(cleaned_quote_list)
+                sorted_list = eval(cropped_sorted_list)
             except:
-                #print('Error: Could not evaluate the cropped sorted list, not valid python')
-                pass
+                # try again without last item after comma
+                cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
+                try:
+                    sorted_list = eval(cropped_sorted_list)
+                except:
+                    count_not_parsed +=1
+                    #print(f'Original list {count_not_parsed}:', str_list)
+                    #if count_not_parsed>20:
+                    #    print('bar')
+                    #    #exit()
 
     if type(sorted_list)==list:
         is_list = True
@@ -115,9 +195,20 @@ def eval_str_list(str_list):
             elif str_list.startswith('([') or str_list.endswith('],'):
                 sorted_list = sorted_list[0]
             is_list = False
-    if sorted_list is not None and type(sorted_list[-1])==type(...):
-        sorted_list = sorted_list[:-1]
+    if type(sorted_list)!=list:
+        sorted_list = None
+    if sorted_list is not None and ... in sorted_list:
+        # drop all ellipses from list
+        sorted_list = [s for s in sorted_list if s!=...]
         has_ellipsis = True
+    if sorted_list is not None:
+        for i in range(len(sorted_list)):
+            if type(sorted_list[i])!=expected_type:
+                try:
+                    print(f'Converting {sorted_list[i]} to {expected_type}')
+                    sorted_list[i] = expected_type(sorted_list[i])
+                except:
+                    pass
             
     return (sorted_list, is_cropped, is_cleaned, is_list, has_ellipsis)
     
@@ -145,8 +236,9 @@ def evaluate_results(results):
         for cur_result in config_data['results']:
             model = cur_result['model']
             for list_name, sorted_list in cur_result['sorted_lists'].items():
-                sorted_list, is_cropped, _, is_list, has_ellipsis = eval_str_list(sorted_list)
                 unsorted_list = unsorted_lists[list_name]
+                expected_type = type(unsorted_list[0])
+                sorted_list, is_cropped, _, is_list, has_ellipsis = eval_str_list(sorted_list, expected_type)
                 if sorted_list is None:
                     unordered_pairs_before = None
                     unordered_pairs_after = None
