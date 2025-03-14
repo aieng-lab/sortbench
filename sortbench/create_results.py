@@ -25,11 +25,19 @@ def main():
 
     # Load benchmark data and existing results
     configs = data_utils.load_data_local(file_path=args.data_path, name=args.name, mode=args.mode, version=args.version)
-    results = result_utils.load_results_from_disk(file_path=args.result_path)
 
     for model in models:
-        results = inference_utils.run_configs_for_single_model(configs, model=model, results=results)
-        result_utils.write_results_to_disk(results, file_path='benchmark_results')
+        for config_name, lists in configs.items():
+            print(f"Config: {config_name} --- Model {model}")
+            if result_utils.check_if_result_available_on_disk(args.result_path, config_name, model):
+                print(f"Results already available, skipping")
+                continue
+            print('Results not available, running inference')
+            results = result_utils.load_single_result_from_disk(config_name, args.result_path)
+            results = inference_utils.run_single_config_for_model(config_name, lists, model=model, results=results)
+            print('Inference finished, writing results to disk')
+            result_utils.write_results_to_disk(results, file_path=args.result_path, overwrite=True)
+            print('Finished writing results to disk')
 
 if __name__ == "__main__":
     main()
