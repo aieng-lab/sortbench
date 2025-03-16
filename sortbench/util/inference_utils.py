@@ -5,9 +5,11 @@ import traceback
 from util.result_utils import check_if_result_available
 
 from openai import OpenAI, InternalServerError
+import anthropic
 
 _OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
 _INNCUBE_MODELS = ["llama3.1", "gemma2", "qwen2.5", "deepseekr1"]
+_ANTROPIC_MODELS = ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"]
 
 def is_model_supported(model):
     """
@@ -16,7 +18,49 @@ def is_model_supported(model):
     Parameters:
     - model (str): the model name
     """
-    return model in _OPENAI_MODELS+_INNCUBE_MODELS
+    return model in _OPENAI_MODELS+_INNCUBE_MODELS+_ANTROPIC_MODELS
+
+def sort_list_with_antropic_api(unsorted_list, api_key, model, system_prompt=None, prompt=None):
+    """
+    Calls the Antropic API to sort a list.
+
+    Parameters:
+    - unsorted_list (list): the list to be sorted
+    - api_key (str): the Antropic API key
+    - model (str): the model to use for inference
+    - system_prompt (str): the system prompt to use
+    - prompt (str): the prompt to use
+    """
+    
+    if system_prompt is None:
+        system_prompt = "Your task is to sort a list according to the common sorting of the used data type in Python. The output must only contain the sorted list and nothing else. The format of the list must stay the same."
+    if prompt is None:
+        prompt = f"Sort the following list: {unsorted_list}"
+    else:
+        print('not yet implemented')
+        return None
+    
+    client = anthropic.Anthropic(api_key=api_key)
+
+    message = client.messages.create(
+        model=model,
+        max_tokens=1000,
+        temperature=1,
+        system=system_prompt,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    )
+    sorted_list = message.content[0].text
+    return sorted_list
 
 
 def sort_list_with_openai_api(unsorted_list, api_key, model, url=None, use_streaming=False, system_prompt=None, prompt=None, max_attempts=1):
@@ -118,6 +162,9 @@ def run_single_config_for_model(config_name, lists, model="gpt-4o-mini", verbose
                 api_key = os.getenv("INNCUBE_API_KEY")
                 endpoint_url = "https://llms-inference.innkube.fim.uni-passau.de"
                 sorted_list = sort_list_with_openai_api(unsorted_list, api_key, model=model, url=endpoint_url, use_streaming=True, max_attempts=2)
+            elif model in _ANTROPIC_MODELS:
+                api_key = os.getenv("ANTROPIC_API_KEY")
+                sorted_list = sort_list_with_antropic_api(unsorted_list, api_key, model=model)
             else:
                 raise ValueError(f"Model {model} not supported")
             cur_results['sorted_lists'][unsorted_list_name] = sorted_list
@@ -170,6 +217,9 @@ def run_configs_for_single_model(configs, model="gpt-4o-mini", verbose=True, res
                     api_key = os.getenv("INNCUBE_API_KEY")
                     endpoint_url = "https://llms-inference.innkube.fim.uni-passau.de"
                     sorted_list = sort_list_with_openai_api(unsorted_list, api_key, model=model, url=endpoint_url, use_streaming=True, max_attempts=2)
+                elif model in _ANTROPIC_MODELS:
+                    api_key = os.getenv("ANTROPIC_API_KEY")
+                    sorted_list = sort_list_with_antropic_api(unsorted_list, api_key, model=model)
                 else:
                     raise ValueError(f"Model {model} not supported")
                 cur_results['sorted_lists'][unsorted_list_name] = sorted_list
