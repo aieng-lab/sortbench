@@ -1,3 +1,4 @@
+import os
 import re
 import pandas as pd
 from collections import Counter
@@ -67,6 +68,57 @@ def count_additional_items(unsorted_list, sorted_list):
     additional_items = sorted_counter - unsorted_counter
     return sum(additional_items.values())
 
+def add_closing_bracket_fix_colons(str_list):
+    last_comma_index = str_list.rfind(',')
+    if last_comma_index==-1:
+        return None
+    str_list = str_list[:last_comma_index] + ']'
+    # drop all colons
+    str_list = str_list.replace("'", '')
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        sorted_list = None
+    return sorted_list
+
+def add_closing_bracket(str_list):
+    last_comma_index = str_list.rfind(',')
+    if last_comma_index==-1:
+        return None
+    str_list = str_list[:last_comma_index] + ']'
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        sorted_list = None
+    return sorted_list
+
+def latex_matcher(str_list):
+    if not str_list.endswith(r'\]'):
+        return None
+    str_list = str_list.split('\n')[1] # assume first row starts latex, second row ends it
+    # drop all instances of \boxed{ and }
+    if str_list.startswith(r'\boxed{'):
+        str_list = str_list.replace(r'\boxed{', '')
+        str_list = str_list.replace('}', '')
+    if not str_list.startswith(r'['):
+        str_list = '[' + str_list
+    if not str_list.endswith(r']'):
+        str_list = str_list + ']'
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+        if len(sorted_list)<=1:
+            sorted_list = None
+    except:
+        sorted_list = None
+    return sorted_list
+
 def backtick_matcher(str_list):
     backtick_matches = re.findall(r"```plaintext(.*)```", str_list, re.DOTALL)
     if len(backtick_matches)>0:
@@ -100,7 +152,30 @@ def numbered_list_matcher(str_list):
         return lst
     return None
 
+def linewise_matcher(str_list):
+    lines = str_list.strip().split('\n')
+    if len(lines)==0:
+        return None
+    # check if first line indicates sorted list
+    if not lines[0].startswith('The sorted list'):
+        return None
+    
+    # assuming all non-empty lines after first line are list items
+    lst = []
+    for line in lines[1:]:
+        stripped_line = line.strip()
+        if stripped_line.endswith(','):
+            stripped_line = stripped_line[:-1]
+        if len(stripped_line)>0:
+            lst.append(stripped_line)
+    if len(lst)>1:
+        return lst
+    return None
+    
 def curly_braces_matcher(str_list):
+    # drop potential boxed statements
+    str_list = str_list.replace(r'\boxed{', '')
+    str_list = str_list.replace('}', '')
     # the assumption is that this is now latex code and underscores are escaped
     curly_braces_matches = re.findall(r"\{(.*)\}", str_list, re.DOTALL)
     if len(curly_braces_matches)>0:
@@ -110,9 +185,152 @@ def curly_braces_matcher(str_list):
         return sorted_list
     return None
 
-count_not_parsed = 0
+def make_items_strings(str_list):
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
 
-def eval_str_list(str_list, expected_type):
+def drop_newlines(str_list):
+    str_list = str_list.replace('\n', ' ')
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
+
+def drop_quotes(str_list):
+    # first drop all quotes
+    str_list = str_list.replace("'", "")
+    # then add expected quotes
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
+
+def drop_quotes_and_newlines(str_list):
+    str_list = str_list.replace('\n', ' ')
+    # first drop all quotes
+    str_list = str_list.replace("'", "")
+    # then add expected quotes
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+        # sanity check for length of list items
+        if len(sorted_list)==1:
+            sorted_list = None
+    except:
+        pass
+    return sorted_list
+
+def drop_after_first_closing_bracket(str_list):
+    str_list = str_list[:str_list.find(']')+1]
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+        if len(sorted_list)<=1:
+            sorted_list = None
+        for item in sorted_list:
+            if type(item)==str and len(item)==0:
+                sorted_list = None
+                break
+                
+    except:
+        pass
+    return sorted_list
+
+def drop_after_last_closing_bracket(str_list):
+    cropped_sorted_list = str_list[:(str_list.rfind(']')+1)]
+    cropped_sorted_list = cropped_sorted_list[cropped_sorted_list.rfind('['):]
+    sorted_list = None
+    try:
+        sorted_list = eval(cropped_sorted_list)
+    except:
+        pass 
+        # cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
+    return sorted_list
+
+def last_line_list(str_list):
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    last_line = lines[-1]
+    sorted_list = None
+    if last_line.startswith('[') and last_line.endswith(']'):
+        try:
+            sorted_list = eval(last_line)
+        except:
+            pass
+    return sorted_list
+
+def last_line_list_no_close(str_list):
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    last_line = lines[-1]
+    sorted_list = None
+    if last_line.startswith('['):
+        last_line = last_line[:last_line.rfind(',')] + ']'
+        try:
+            sorted_list = eval(last_line)
+        except:
+            pass
+    return sorted_list
+
+def first_lines_latex(str_list):
+    lines = str_list.split('\n')
+    if len(lines)<=2:
+        return None
+    if lines[0].startswith(r'[') and lines[2].endswith(r'\]'):
+        str_list = lines[1]
+        # drop all instances of \boxed{ and }
+        if str_list.startswith(r'\boxed{'):
+            str_list = str_list.replace(r'\boxed{', '')
+            str_list = str_list.replace('}', '')
+        if not str_list.startswith(r'['):
+            str_list = '[' + str_list
+        if not str_list.endswith(r']'):
+            str_list = str_list + ']'
+        sorted_list = None
+        try:
+            sorted_list = eval(str_list)
+        except:
+            sorted_list = None
+        return sorted_list
+    return None
+
+def last_line_is_list_matcher(str_list):
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    last_line = lines[-1]
+    sorted_list = None
+    lst = []
+    if last_line.count(',')>4:
+        csv_items = last_line.split(',')
+        for item in csv_items:
+            item = item.replace(r'\boxed{', '')
+            item = item.replace('}', '')
+            lst.append(item.strip())
+        if len(lst)>0:
+            sorted_list = lst
+    return sorted_list
+    
+def eval_str_list(str_list, expected_type, debug=True, config_name='config', model_name='model', list_name='lst'):
     """
     Tries to parse a list given as a string. If the string is not valid python, we try to things:
     1. We check if the string ends in a closing bracket. If not, we look for the last comma, crop the string there and add a new closing bracket.
@@ -126,13 +344,9 @@ def eval_str_list(str_list, expected_type):
     - is_cropped (bool): True if the string was cropped.
     - is_cleaned (bool): True if the string was cleaned.
     """
-    is_cropped = False
-    is_cleaned = False
-    is_list = False
-    is_enum = False
-    has_ellipsis = False
+    error_type = None
     sorted_list = None
-    global count_not_parsed
+    
     # strip deepseek reasoning
     if str_list.startswith('<think>'):
         str_list_org = str_list # keep original for debugging
@@ -144,6 +358,9 @@ def eval_str_list(str_list, expected_type):
         str_list = str_list.replace('**', '')
         #str_list = str_list[str_list.find('['):].strip()
 
+    # strip "input()" from all strings as this can trip up eval
+    str_list = str_list.replace('input()', '')
+    
     try:
         sorted_list = eval(str_list)
     except:
@@ -151,41 +368,85 @@ def eval_str_list(str_list, expected_type):
         last_closing_bracket_index = str_list.rfind(']')
         last_opening_bracket_index = str_list.rfind('[')
         if last_closing_bracket_index==-1 and last_opening_bracket_index==-1:
-            sorted_list = numbered_list_matcher(str_list)
-            if sorted_list is not None:
-                is_enum = True
+            # no brackets at all
+            if sorted_list is None:
+                sorted_list = numbered_list_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'is_enum'
             if sorted_list is None:
                 sorted_list = backtick_matcher(str_list)
                 if sorted_list is not None:
-                    is_backticks = True
+                    error_type = 'is_backtick'
             if sorted_list is None:
                 sorted_list = curly_braces_matcher(str_list)
                 if sorted_list is not None:
-                    is_curly_braces = True
+                    error_type = 'is_curly'
             if sorted_list is None:
-                count_not_parsed +=1
-                #print(f'Original list {count_not_parsed}:', str_list)
-                #if count_not_parsed>20:
-                #    print('foo')
-                    #exit()
+                sorted_list = linewise_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'is_linewise'
+            if sorted_list is None:
+                sorted_list = last_line_is_list_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'is_last_line_list'
         else:
-            cropped_sorted_list = str_list[:(str_list.rfind(']')+1)]
-            cropped_sorted_list = cropped_sorted_list[cropped_sorted_list.rfind('['):]
-            is_cropped = True
-            try:
-                sorted_list = eval(cropped_sorted_list)
-            except:
-                # try again without last item after comma
-                cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
-                try:
-                    sorted_list = eval(cropped_sorted_list)
-                except:
-                    count_not_parsed +=1
-                    #print(f'Original list {count_not_parsed}:', str_list)
-                    #if count_not_parsed>20:
-                    #    print('bar')
-                    #    #exit()
+            # has some brackets
+            if sorted_list is None:
+                sorted_list = make_items_strings(str_list)
+                if sorted_list is not None:
+                    error_type = 'item_not_string'
+            if sorted_list is None:
+                sorted_list = drop_newlines(str_list)
+                if sorted_list is not None:
+                    error_type = 'newlines'
+            if sorted_list is None:
+                sorted_list = drop_quotes(str_list)
+                if sorted_list is not None:
+                    error_type = 'quotes'
+            if sorted_list is None:
+                sorted_list = drop_quotes_and_newlines(str_list)
+                if sorted_list is not None:
+                    error_type = 'quotes_and_newlines'
+            if sorted_list is None:
+                sorted_list = drop_after_last_closing_bracket(str_list)
+                if sorted_list is not None:
+                    error_type = 'content_after_last_closing'
+            if sorted_list is None:
+                sorted_list = drop_after_first_closing_bracket(str_list)
+                if sorted_list is not None:
+                    error_type = 'content_after_first_closing'
+            if sorted_list is None:
+                sorted_list = add_closing_bracket(str_list)
+                if sorted_list is not None:
+                    error_type = 'no_closing'
+            if sorted_list is None:
+                sorted_list = add_closing_bracket_fix_colons(str_list)
+                if sorted_list is not None:
+                    error_type = 'no_closing_fix_colons'
+            if sorted_list is None:
+                sorted_list = latex_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'latex'
+            if sorted_list is None:
+                sorted_list = last_line_list(str_list)
+                if sorted_list is not None:
+                    error_type = 'last_line'
+            if sorted_list is None:
+                sorted_list = last_line_list_no_close(str_list)
+                if sorted_list is not None:
+                    error_type = 'last_line_no_close'
+            if sorted_list is None:
+                sorted_list = first_lines_latex(str_list)
+                if sorted_list is not None:
+                    error_type = 'last_line_boxed'
+    if sorted_list is None and debug:
+        file_name = f'not_parsed_{config_name}_{model_name}_{list_name}.txt'
+        if not os.path.exists(f'known_parsing_errors/{file_name}'):
+            with open(f'debug/{file_name}', 'w') as f:
+                f.write(str_list)
 
+    is_list = False
+    has_ellipsis = False
     if type(sorted_list)==list:
         is_list = True
     else:
@@ -205,12 +466,21 @@ def eval_str_list(str_list, expected_type):
         for i in range(len(sorted_list)):
             if type(sorted_list[i])!=expected_type:
                 try:
-                    print(f'Converting {sorted_list[i]} to {expected_type}')
                     sorted_list[i] = expected_type(sorted_list[i])
                 except:
-                    pass
+                    print(f'Could not convert "{sorted_list[i]}" to {expected_type} - setting list to None')
+                    print('error_code:', error_type)
+                    sorted_list = None
+                    is_list = False
+                    has_ellipsis = False
+                    error_type = None
+                    file_name = f'not_parsed_{config_name}_{model_name}_{list_name}.txt'
+                    if not os.path.exists(f'known_parsing_errors/{file_name}'):
+                        with open(f'debug/{file_name}', 'w') as f:
+                            f.write(str_list)
+                    break
             
-    return (sorted_list, is_cropped, is_cleaned, is_list, has_ellipsis)
+    return (sorted_list, error_type, is_list, has_ellipsis)
     
 
 def evaluate_results(results):
@@ -238,7 +508,7 @@ def evaluate_results(results):
             for list_name, sorted_list in cur_result['sorted_lists'].items():
                 unsorted_list = unsorted_lists[list_name]
                 expected_type = type(unsorted_list[0])
-                sorted_list, is_cropped, _, is_list, has_ellipsis = eval_str_list(sorted_list, expected_type)
+                sorted_list, error_type, is_list, has_ellipsis = eval_str_list(sorted_list, expected_type, debug=True, config_name=config_name, model_name=model, list_name=list_name)
                 if sorted_list is None:
                     unordered_pairs_before = None
                     unordered_pairs_after = None
@@ -274,7 +544,8 @@ def evaluate_results(results):
                     'Additional Items': count_additional,
                     'Length Difference': len_diff,
                     'Parsed': is_parsed,
-                    'Cropped': is_cropped,
+                    'HasError': error_type is not None,
+                    'ErrorType': error_type,
                     'IsList': is_list,
                     'HasEllipsis': has_ellipsis
                 })
@@ -313,10 +584,11 @@ def compute_total_score(df_results):
     - df_results: DataFrame with the total score for each benchmark result
     """
     df_results['Validity Score'] = 0.0
-    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==True), 'Validity Score'] = 0.5
-    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['IsList']==False), 'Validity Score'] = 0.75
-    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['HasEllipsis']==True), 'Validity Score'] = 0.75
-    df_results.loc[(df_results['Parsed']==True) & (df_results['Cropped']==False) & (df_results['IsList']==True) & (df_results['HasEllipsis']==False), 'Validity Score'] = 1.0
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==True), 'Validity Score'] = 0.5
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['IsList']==False), 'Validity Score'] = 0.75
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['HasEllipsis']==True), 'Validity Score'] = 0.75
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['IsList']==True) & (df_results['HasEllipsis']==False), 'Validity Score'] = 1.0
+
     df_results['Sorting Score'] = 1-(df_results['Unordered Pairs (%)'] + df_results['Unordered Neighbors (%)'])/2
     df_results['Faithfulness Score'] = 1-(df_results['Missing Items (%)'] + df_results['Additional Items (%)'])/2
     df_results['SortBench Score'] = df_results['Validity Score']*(df_results['Sorting Score'] + df_results['Faithfulness Score'])/2
