@@ -1,0 +1,25 @@
+[word]
+        elif word in scale:
+            factor = scale[word]
+            if word == 'hundred':
+                current *= factor
+            else:
+                current += total % (factor * 10)  # To handle cases like "thousand" after "million"
+                total = (total // (factor * 10)) * factor + current
+                current = 0
+        else:
+            return -1  # Return error for invalid words
+    
+    total += current
+    
+    return total if total <= 1018 else -1
+```
+
+### Explanation
+- Mapping Words to Values: The dictionaries `word_to_num` and `scale` map word representations of numbers to their respective integer values. This includes units, tens, and scales.
+- Processing the Phrase: The input phrase is split into words, and each word is processed in sequence. The variable `current` accumulates numerical values as we parse through the phrase.
+- Handling Scales: When a scale word (e.g., thousand, million) is encountered, the current accumulated value is scaled appropriately and added to the total sum. This ensures that larger numbers are constructed correctly.
+- Accumulating Values: For units and tens, their values are directly added to `current`, allowing us to build up larger numbers as we parse through the phrase.
+- Final Summation: After processing all words, any remaining value in `current` is added to `total` to ensure the final result is accurate.
+
+This approach efficiently handles a wide range of numerical phrases by breaking down the problem into manageable steps and leveraging dictionary mappings for quick lookups.

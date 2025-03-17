@@ -1,0 +1,3 @@
+[
+x = \boxed{\dfrac{5}{3}}, \quad y = \boxed{\dfrac{7}{2}}
+\]

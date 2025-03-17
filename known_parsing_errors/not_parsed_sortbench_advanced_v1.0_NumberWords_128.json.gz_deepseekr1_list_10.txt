@@ -1,0 +1,36 @@
+[word]
+        elif word == 'hundred':
+            current *= 100
+        elif word == 'thousand' or word == 'million':
+            # Multiply the current by the scale and add to total
+            scale = 1000 if word == 'thousand' else 1000000
+            total += current * scale
+            current = 0
+        elif word == 'billion':
+            # Add for higher scales as needed
+            pass
+    
+    # Add the remaining current value after processing all words
+    total += current
+    
+    return total
+
+# Test cases:
+print(word_to_num("five"))  # Expected:5
+print(word_to_num("fifty-six"))  # Expected:56
+print(word_to_num("three hundred fifty-six"))  # Expected:356
+print(word_to_num("two thousand fifty"))  # Expected:2050
+print(word_to_num("one million two hundred thirty-four thousand five hundred sixty-seven"))  
+# Expected:1234567
+```
+
+### Explanation
+1. Mapping Words to Values: A dictionary `num_words` maps individual number words to their corresponding numerical values.
+2. Splitting Input: The input string is split into individual words, handling hyphens by replacing them with spaces to ensure correct word separation.
+3. Processing Each Word:
+   - For each word, check if it's a number word and add its value to `current`.
+   - If the word is "hundred", multiply `current` by 100.
+   - When encountering scale words like "thousand" or "million", multiply the accumulated `current` by the respective scale (1,000 or 1,000,000) and add it to `total`, then reset `current`.
+4. Final Accumulation: After processing all words, add any remaining value in `current` to `total`.
+
+This approach ensures that each part of the number is correctly scaled and added to form the final numerical value.

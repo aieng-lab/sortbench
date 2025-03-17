@@ -1,0 +1,7 @@
+
+
+The sorted list of negative numbers in ascending order (from smallest to largest) is as follows:
+
+-9684, -9460, -9328, -8978, -8906, -8487, -7233, -6861, -6692, -6649, -6054, -5679, -548, -4464, -4322, -4213, -3843, -3400, -3285, -2199, -215, -2048, -1909, -1241, -1063, -308.
+
+This list is arranged from the most negative (smallest) to the least negative (largest).

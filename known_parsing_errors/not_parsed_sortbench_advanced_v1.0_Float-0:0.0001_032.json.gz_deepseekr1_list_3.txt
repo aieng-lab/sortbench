@@ -1,0 +1,38 @@
+
+
+The sorted list of the system values from smallest to largest, along with their original indices, is as follows:
+
+0.000001 (Index: 1),
+
+0.000002 (Index: 2),
+
+0.000003 (Index: 3),
+
+0.000004 (Index: 4),
+
+0.000005 (Index: 5),
+
+0.000006 (Index: 6),
+
+0.000007 (Index: 7),
+
+0.000008 (Index: 8),
+
+0.000009 (Index: 9),
+
+0.000010 (Index: 10).
+
+Since the values are already in ascending order, their indices remain sequential from 1 to 10.
+
+Answer: The sorted list with indices is:
+
+0.000001 (1),  
+0.000002 (2),  
+0.000003 (3),  
+0.000004 (4),  
+0.000005 (5),  
+0.000006 (6),  
+0.000007 (7),  
+0.000008 (8),  
+0.000009 (9),  
+0.000010 (10).

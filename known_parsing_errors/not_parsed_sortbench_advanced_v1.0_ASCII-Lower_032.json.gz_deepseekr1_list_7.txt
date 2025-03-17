@@ -1,0 +1,5 @@
+
+
+The sorted list of words alphabetically is as follows:
+
+a about adventures. along and around book friends. i meet my new the the to travel want way. world writing

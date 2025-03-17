@@ -1,0 +1,22 @@
+[token]
+        elif token == 'hundred':
+            current *= 100
+        elif token == 'thousand':
+            total += current * 1000
+            current = 0
+    # Add the last part to the total
+    total += current
+    
+    return total
+```
+
+### Explanation
+1. Preprocessing: The input string is modified by replacing hyphens with spaces to ensure that compound numbers like "ninety-nine" are split into "ninety nine".
+2. Tokenization: The preprocessed string is split into individual words (tokens) for easy processing.
+3. Mapping and Processing: Each token is checked against the dictionary:
+   - Number words directly contribute their value to `current`.
+   - "Hundred" scales the current accumulated value by 100.
+   - "Thousand" scales the current value by 1000, adds it to the total, and resets `current` for further accumulation.
+4. Final Step: After all tokens are processed, any remaining value in `current` is added to `total` to get the final result.
+
+This approach efficiently handles both simple and compound numbers, as well as scale words, ensuring accurate conversion from word representation to integer value.

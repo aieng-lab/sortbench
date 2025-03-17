@@ -1,0 +1,5 @@
+
+
+The number of words between “rearward” and “revision”, inclusive, is 2.
+
+\boxed{2}

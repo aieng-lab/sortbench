@@ -1,0 +1,20 @@
+[h]
+    roman_tens = tens[t]
+    roman_ones = ones[u]
+    
+    roman_lower = roman_hundreds + roman_tens + roman_ones
+    
+    return roman_thousands + roman_lower
+
+print(int_to_roman(number))
+```
+
+### Explanation
+1. Reading Input: The input integer is read from standard input.
+2. Dictionaries for Roman Symbols: Three dictionaries (`ones`, `tens`, `hundreds`) are defined to map each digit (0-9) in their respective places to the corresponding Roman symbols.
+3. Handling Zero Case: If the input number is zero, the function returns "N" as specified.
+4. Splitting the Number: The number is split into thousands and the lower part (hundreds, tens, units).
+5. Converting Each Part: Each part (thousands, hundreds, tens, units) is converted to Roman symbols using dictionary look-ups.
+6. Combining Parts: The Roman numeral parts are concatenated to form the final result, which is then printed.
+
+This approach ensures that each part of the number is processed individually and efficiently combined to produce the correct Roman numeral representation.

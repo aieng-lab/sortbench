@@ -1,0 +1,24 @@
+[i]
+        if i + 1 < len(parts) and parts[i+1] == 'hundred':
+            x = units.get(word, 0)
+            num += x * 100
+            i += 2
+        else:
+            if '-' in word:
+                for sw in word.split('-'):
+                    num += tens.get(sw, units.get(sw, 0))
+            else:
+                num += tens.get(word, units.get(word, 0))
+            i += 1
+    
+    return num
+```
+
+### Explanation
+- Units and Tens: Two dictionaries are used to map textual representations of numbers to their numerical values for units (one to nine) and tens (ten, twenty, etc.).
+- Splitting Input: The input string is split into individual words using the `split()` method.
+- Processing Hundreds: Each word is checked to see if it is followed by "hundred". If true, the value of the current word is retrieved from the units dictionary, multiplied by 100, and added to the total. The index is then incremented by two to skip the next word ("hundred").
+- Handling Remaining Words: For words not part of a hundred, each word is processed individually. Hyphenated compound numbers are split into their constituent parts, each of which is converted using either the units or tens dictionary.
+- Summing Values: The values from all processed components are summed to produce the final numerical value.
+
+This approach efficiently processes each component of the input string, ensuring that hundreds, tens, units, and hyphenated numbers are correctly converted into their respective numerical values.

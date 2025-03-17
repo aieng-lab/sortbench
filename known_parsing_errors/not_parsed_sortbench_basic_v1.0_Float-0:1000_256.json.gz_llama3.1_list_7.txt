@@ -1,0 +1,12 @@
+import numpy as np
+
+# your input array
+arr = [put_your_array_here]
+
+# convert to a NumPy array
+np_arr = np.array(arr)
+
+# compute the standard deviation
+std_dev = np.std(np_arr)
+
+print(std_dev)

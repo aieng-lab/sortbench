@@ -1,0 +1,19 @@
+[word]
+        elif word in ['thousand', 'million']:
+            current += word_to_num.get(word, 0)
+            total += current * word_to_num[word]
+            current = 0
+        else:
+            current += word_to_num.get(word, 0)
+
+    total += current
+
+    return total
+
+# Example usage
+print(number_to_words("ninety-nine thousand nine hundred eighty-seven"))  # Output: 99987
+print(number_to_words("one million two hundred thousand three hundred forty-five"))  # Output: 1200345
+```
+
+### Explanation
+The solution processes each word to build the numerical value step-by-step. It handles units, tens, and scales (like hundred, thousand, and million) by applying multiplication and addition operations appropriately. This approach ensures that numbers are correctly scaled and summed to produce the final result efficiently.

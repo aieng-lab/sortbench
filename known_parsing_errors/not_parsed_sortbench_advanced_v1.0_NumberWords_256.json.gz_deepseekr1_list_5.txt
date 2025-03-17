@@ -1,0 +1,24 @@
+[]
+    for word in words:
+        if '-' in word:
+            parts = word.split('-')
+            total = 0
+            for part in parts:
+                if part not in word_to_num:
+                    return None
+                total += word_to_num[part]
+            result.append(total)
+        else:
+            if word not in word_to_num:
+                return None
+            result.append(word_to_num[word])
+    return result
+```
+
+### Explanation
+- Dictionary Initialization: The dictionary `word_to_num` maps each number word to its corresponding integer value.
+- String Splitting: The input string is split into individual words using the `split()` method.
+- Word Processing: Each word is checked for hyphens. If present, it is split into subwords which are then converted to their respective numbers and summed. Non-hyphenated words are directly converted using the dictionary lookup.
+- Error Handling: The function returns `None` if any part of a word is not found in the dictionary, ensuring robust handling of unknown inputs.
+
+This approach efficiently converts each part of the input string into its numerical equivalent, providing a clear and structured solution to the problem.

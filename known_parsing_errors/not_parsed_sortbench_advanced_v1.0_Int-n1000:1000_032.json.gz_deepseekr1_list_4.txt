@@ -1,0 +1,24 @@
+
+
+To sort the given list of numbers in ascending order (from smallest to largest), we need to arrange all negative numbers from most negative to least negative and then append the positive number at the end.
+
+### Step-by-Step Explanation:
+
+1. List All Negative Numbers:
+   Start by identifying all negative numbers in the system:
+   -9522, -9085, -8102, -8073, -7993, -7596, -7574, -7280, -6510, -6065, -5799, -5744, -5657, -5458, -5293, -5124, -4255, -4131, -2968, -2772, -2602, -2292, -2252, -1942, -1890, -1164, -1012, -62.
+
+2. Sort Negative Numbers by Absolute Value:
+   Arrange these negative numbers from the most negative (smallest) to least negative (closest to zero). This is done by sorting their absolute values in descending order:
+   -9522, -9085, -8102, -8073, -7993, -7596, -7574, -7280, -6510, -6065, -5799, -5744, -5657, -5458, -5293, -5124, -4255, -4131, -2968, -2772, -2602, -2292, -2252, -1942, -1890, -1164, -1012, -62.
+
+3. Include the Positive Number:
+   Add the only positive number, 548, at the end of the sorted list.
+
+### Final Sorted List:
+-9522, -9085, -8102, -8073, -7993, -7596, -7574, -7280, -6510, -6065, -5799, -5744, -5657, -5458, -5293, -5124, -4255, -4131, -2968, -2772, -2602, -2292, -2252, -1942, -1890, -1164, -1012, -62, 548.
+
+### Answer:
+The sorted list in ascending order is:
+
+-9522, -9085, -8102, -8073, -7993, -7596, -7574, -7280, -6510, -6065, -5799, -5744, -5657, -5458, -5293, -5124, -4255, -4131, -2968, -2772, -2602, -2292, -2252, -1942, -1890, -1164, -1012, -62, 548.

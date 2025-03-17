@@ -1,0 +1,13 @@
+[i] - times[i-1] > th:
+        gaps += 1
+
+print(gaps + 1)
+```
+
+### Explanation
+1. Reading Input: We start by reading the number of customers `n` and the threshold `th`, followed by the list of arrival times.
+2. Sorting Times: The arrival times are sorted to facilitate checking consecutive intervals.
+3. Counting Gaps: By iterating through the sorted list, we count each interval that exceeds `th`. Each such interval signifies a new group starting.
+4. Calculating Groups: The total number of groups is given by the count of these gaps plus one (since the first group starts without any prior gap).
+
+This approach efficiently determines the number of customer groups using sorting and a single pass through the list, ensuring an optimal solution with a time complexity dominated by the sorting step, typically O(n log n).

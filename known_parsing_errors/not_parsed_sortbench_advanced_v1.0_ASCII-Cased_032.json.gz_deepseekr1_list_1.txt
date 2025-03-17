@@ -1,0 +1,14 @@
+
+
+On a case-sensitive system where files are sorted lexicographically, filenames starting with uppercase letters will appear before those beginning with lowercase letters due to their lower ASCII values.
+
+Step-by-Step Explanation:
+
+1. Case Sensitivity: The system treats uppercase and lowercase letters as distinct characters.
+2. ASCII Values: Uppercase letters have lower ASCII codes (e.g., 'A' is 65) compared to lowercase letters (e.g., 'a' is 97).
+3. Lexicographical Order: When sorting, the system compares each character from left to right. The first differing character determines the order.
+4. Comparison Result: Since uppercase letters have lower ASCII values than their lowercase counterparts, any filename starting with an uppercase letter will be listed before a filename starting with a lowercase letter.
+
+Answer:
+
+In such systems, "File2" comes before "file1".

@@ -1,0 +1,15 @@
+
+
+Given a list of 200 numbers with three decimal places, the task was to analyze them statistically. The key steps involved identifying the maximum and minimum values in the dataset.
+
+First, the numbers were examined for their range. The first number was -9011.352, which is very negative. The subsequent numbers gradually increased but remained mostly negative until reaching positive values around entry 182. The highest positive value found was 926.757.
+
+After reviewing the list, the maximum and minimum values were identified as follows:
+
+- Maximum value: 926.757
+- Minimum value: -9011.352
+
+These values are significant as they represent the highest and lowest points in the dataset, which is a common statistical analysis task when given such a list of numbers.
+
+### Final Answer
+The maximum value is \boxed{926.757} and the minimum value is \boxed{-9011.352}.

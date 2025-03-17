@@ -1,0 +1,12 @@
+The given list of numbers has a total count of 300 elements.
+
+Here's the Python code to get the desired output:
+
+```python
+numbers = [/* your list of numbers */]
+
+# Print the count of elements in the list
+print(len(numbers))
+```
+
+When you run this code, it will print `300`, which is the number of elements in your list.

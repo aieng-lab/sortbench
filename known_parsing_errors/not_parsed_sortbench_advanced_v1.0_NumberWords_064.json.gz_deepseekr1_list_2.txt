@@ -1,0 +1,57 @@
+['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+            'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+            'Seventeen','Eighteen','Nineteen']
+    tens = ['','Ten','Twenty','Thirty','Forty','Fifty','Sixty','Seventy',
+            'Eighty','Ninety']
+    
+    def convert_three_digits(num):
+        res = []
+        hundred = num // 100
+        remainder = num % 100
+        
+        if hundred > 0:
+            res.append(ones[hundred] + ' Hundred')
+        
+        if remainder >= 20:
+            ten_part = tens[remainder // 10]
+            one_part = ones[remainder % 10]
+            res.append(ten_part)
+            if one_part:
+                res.append(one_part)
+        elif remainder > 0:
+            res.append(ones[remainder])
+        
+        return ' '.join(res).strip()
+    
+    scales = ['', ' Thousand', ' Million', ' Billion', ' Trillion']
+    
+    words = []
+    scale_index = 0
+    while n > 0:
+        chunk = n % 1000
+        n = n // 1000
+        
+        if chunk != 0:
+            chunk_words = convert_three_digits(chunk)
+            if scale_index >= 0 and scale_index < len(scales):
+                scale_word = scales[scale_index]
+                if scale_word:
+                    chunk_words += scale_word
+            words.append(chunk_words)
+        
+        scale_index += 1
+    
+    final_words = ' '.join(reversed(words))
+    
+    return final_words
+
+# Example usage:
+print(number_to_words(1000))  # Should print "One Thousand"
+```
+
+### Explanation
+- Helper Functions: The `convert_three_digits` function handles the conversion of numbers less than 1000 into words by breaking them down into hundreds, tens, and ones.
+- Splitting the Number: The number is split into chunks of three digits starting from the least significant digit. Each chunk is processed individually to convert it into words.
+- Combining Results: After converting each chunk into words, we append the appropriate scale word (like "Thousand," "Million") based on the position of the chunk in the original number. The results are then combined in reverse order to form the final string.
+
+This approach ensures that each part of the number is correctly converted and scaled, avoiding any leading zeros or unnecessary words.

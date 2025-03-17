@@ -1,0 +1,28 @@
+The code snippet provided is a Python script that takes in an array of integers and prints out the minimum value.
+
+Here's how you can modify it to calculate the maximum value:
+
+```python
+# This will print the maximum value in the array
+print(max(array))
+```
+
+However, if you want to create your own function without using the built-in max() or min() functions, here is a simple implementation:
+
+```python
+def find_max(arr):
+    max_value = arr[0]
+    for num in arr:
+        if num > max_value:
+            max_value = num
+    return max_value
+
+# Replace array with your actual array
+array = [/* Your array */]
+
+print(find_max(array))
+```
+
+In the function `find_max`, we start by assuming that the first element is the maximum. We then iterate through each number in the array, updating our `max_value` if we find a number greater than it.
+
+Note: The above solution assumes that the input array is not empty. If there's a possibility of an empty array being passed to the function, you should add some error checking code to handle this situation.

@@ -1,0 +1,50 @@
+[]
+    while num > 0:
+        groups.append(num % 1000)
+        num = num // 1000
+    
+    scales = ['', 'thousand', 'million', 'billion']
+    result = []
+    
+    for i in range(len(groups)):
+        chunk = groups[i]
+        if chunk == 0:
+            continue
+        words = convert_three_digits(chunk)
+        scale = scales[i] if i < len(scales) else ''
+        result.append(words + (' ' + scale if scale else ''))
+    
+    return ' '.join(reversed(result)).strip()
+
+def convert_three_digits(n):
+    ones_place = ['','one','two','three','four','five','six','seven','eight','nine',
+                  'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen',
+                  'seventeen','eighteen','nineteen']
+    tens_place = ['','ten','twenty','thirty','forty','fifty','sixty','seventy',
+                  'eighty','ninety']
+    
+    result = []
+    hundred = n // 100
+    remainder = n % 100
+    
+    if hundred > 0:
+        result.append(ones_place[hundred] + ' hundred')
+    
+    if remainder >= 20:
+        tens_part = remainder // 10
+        ones_part = remainder % 10
+        result.append(tens_place[tens_part])
+        if ones_part != 0:
+            result.append(ones_place[ones_part])
+    elif remainder > 0:
+        result.append(ones_place[remainder])
+    
+    return ' '.join(result)
+```
+
+### Explanation
+1. Break Down the Number: The number is divided into groups of three digits using modulo and integer division operations. This helps in processing each group separately.
+2. Convert Groups to Words: Each group of three digits is converted into words by handling hundreds, tens, and units places individually. Special cases like numbers between 10-19 are handled directly using a lookup table.
+3. Append Scale Names: After converting each group, the appropriate scale name (like thousand, million) is appended based on the position of the group in the original number.
+
+This approach ensures that each part of the number is correctly converted into words and scaled appropriately, resulting in an accurate English word representation of the given number.

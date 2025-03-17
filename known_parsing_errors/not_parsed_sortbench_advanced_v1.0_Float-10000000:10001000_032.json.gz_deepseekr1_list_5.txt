@@ -1,0 +1,14 @@
+[i]
+        target_char = 'a'
+        if current_char > target_char:
+            s_list[i] = target_char
+            k -= 1
+    return ''.join(s_list)
+```
+
+### Explanation
+- Conversion to List: The string is converted into a list for easy modification.
+- Left-to-Right Traversal: By iterating from left to right, we ensure that changes are made starting from the most significant characters in terms of lexicographical order.
+- Character Replacement: Each character is checked and replaced with 'a' if possible, using up one operation each time until `k` operations are exhausted.
+
+This method efficiently transforms the string into its smallest possible form by leveraging the allowed operations optimally.

@@ -1,0 +1,23 @@
+[
+        "10000895.0255985",
+        "10000014.111953495",
+        # Add all other numbers here maintaining their original string format
+    ]
+    
+    # Sort the list using a custom key that converts each string to float for comparison
+    sorted_numbers = sorted(numbers, key=lambda x: float(x))
+    
+    # Join the sorted strings into the required output format
+    result = f'[{", ".join(sorted_numbers)}]'
+    return result
+
+# Example usage:
+print(sort_numbers())
+```
+
+### Explanation
+- Reading as Strings: By keeping each number as a string, we avoid issues related to floating-point precision that can occur when converting between strings and floats.
+- Custom Key for Sorting: The `sorted` function uses a lambda function that converts each string to a float for comparison. This ensures numerical sorting without altering the original string representation.
+- Joining Strings: After sorting, the strings are joined into the required format using commas and enclosing them in square brackets.
+
+This method efficiently sorts the numbers while preserving their exact decimal representations, ensuring both accuracy and correctness in the output.

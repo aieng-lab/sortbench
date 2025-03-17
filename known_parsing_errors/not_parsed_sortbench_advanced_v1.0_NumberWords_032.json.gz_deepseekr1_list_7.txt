@@ -1,0 +1,31 @@
+[word]
+        elif word in teens:
+            current_value += teens[word]
+        elif word in tens:
+            current_value += tens[word]
+        elif word == 'hundred':
+            current_value *= 100
+            total += current_value
+            current_value = 0
+    # Add any remaining current value (for cases like "five hundred")
+    total += current_value
+    
+    return total
+
+# Example usage:
+print(get_num("three hundred"))  # Output: 300
+print(get_num("two hundred fifty six"))  # Output: 256
+print(get_num("one hundred twenty three"))  # Output: 123
+```
+
+### Explanation
+1. Mapping Dictionaries: Three dictionaries (`units`, `teens`, `tens`) map word components to their respective numerical values.
+2. String Processing: The input string is split into individual words, with hyphens replaced by spaces to handle compound numbers like "twenty-three".
+3. Iteration and Accumulation: Each word is processed in sequence:
+   - Units directly add their value.
+   - Teens add their specific value.
+   - Tens add their base value (e.g., twenty, thirty).
+   - The word "hundred" multiplies the accumulated current value by 100 and resets for subsequent components.
+4. Total Calculation: Sum all processed values to get the final numerical result.
+
+This approach ensures that numbers expressed in words are accurately converted into integers, handling hundreds, tens, and units appropriately. This solution is particularly useful when dealing with time representations or any application requiring conversion from word-based number strings to their numerical equivalents.

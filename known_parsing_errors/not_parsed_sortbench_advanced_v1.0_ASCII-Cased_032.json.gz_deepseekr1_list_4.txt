@@ -1,0 +1,16 @@
+[input().strip() for _ in range(20)]
+
+# Sort the list lexicographically using default string comparison
+strings.sort()
+
+# Print each string on a separate line
+for s in strings:
+    print(s)
+```
+
+### Explanation
+1. Reading Input: The code reads 20 lines from standard input, each containing one string.
+2. Sorting: The `sort()` method sorts the list of strings in place using Python's default lexicographical order. This means uppercase letters (A-Z) are sorted first, followed by lowercase letters (a-z).
+3. Output: Each string is printed on a new line, resulting in the desired lexicographically sorted order.
+
+This solution efficiently handles the sorting by leveraging Python's built-in capabilities, ensuring correctness and simplicity.

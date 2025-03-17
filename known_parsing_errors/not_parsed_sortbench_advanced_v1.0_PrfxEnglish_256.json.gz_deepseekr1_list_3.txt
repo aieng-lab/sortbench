@@ -1,0 +1,28 @@
+[
+     25 \times 26^6 = 26^7 - 26^3
+     \]
+   - Simplify by factoring out \(26^3\):
+     \[
+     25 \times (26^3) \times 26^3 = 26^4 \times 26^3 - 26^3
+     \]
+     This approach complicates the equation, so instead compute both sides numerically:
+   - Calculate \(25 \times 26^6\):
+     \[
+     26^6 = 308,915,776 \\
+     25 \times 308,915,776 = 7,722,894,400
+     \]
+   - Calculate \(26^7 - 26^3\):
+     \[
+     26^7 = 8,031,810,176 \\
+     26^3 = 17,576 \\
+     8,031,810,176 - 17,576 = 8,031,792,600
+     \]
+   - Compare the two results:
+     \[
+     7,722,894,400 \neq 8,031,792,600
+     \]
+
+4. Conclusion:
+   - Since \(25 \times 26^6 \neq 26^7 - 26^3\), the number of allowed combinations in System A is not equal to that in System B under the given constraints.
+
+Answer: The two systems do not have the same number of possible combinations.

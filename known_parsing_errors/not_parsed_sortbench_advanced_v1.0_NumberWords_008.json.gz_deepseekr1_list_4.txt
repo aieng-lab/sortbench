@@ -1,0 +1,54 @@
+[idx - 1]
+        num += units[hundred_word] * 100
+        words_list = words_list[idx + 1:]  # Remaining part after hundred
+
+    # Process the remaining part for tens and units
+    if 'and' in words_list:
+        words_list.remove('and')
+
+    # Check for teens first
+    has_teen = any(word in teens for word in words_list)
+    if has_teen:
+        for word in words_list:
+            if word in teens:
+                num += teens[word]
+        return num
+
+    # Otherwise, process tens and units
+    current_num = 0
+    for word in words_list:
+        if word in tens:
+            current_num += tens[word]
+        elif word in units:
+            current_num += units[word]
+    num += current_num
+
+    return num
+
+
+def main():
+    import sys
+    input = sys.stdin.read().splitlines()
+    numbers = input[1:]
+    
+    total = 0
+    for number_str in numbers:
+        total += word_to_num(number_str)
+    
+    print(total % 100000)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Explanation
+1. Dictionaries Setup: The dictionaries `units`, `teens`, and `tens` map word representations to their numerical values.
+2. Conversion Function (`word_to_num`):
+   - Splits the input string into words.
+   - Handles hundreds by checking for the presence of "hundred" and computing its value.
+   - Processes the remaining part, first checking for teens and then handling combinations of tens and units.
+3. Main Function:
+   - Reads input lines, skips the header, and processes each number word.
+   - Converts each word to a number using `word_to_num`, sums them up, and prints the result modulo 100000.
+
+This approach ensures that each word number is accurately converted into an integer, handles all edge cases such as hundreds, teens, and combinations of tens and units, and efficiently computes the required sum modulo.

@@ -1,0 +1,18 @@
+[word]
+        elif word in tens:
+            current_num += tens[word]
+        elif word in scales:
+            if word == 'hundred':
+                current_num *= scales[word]
+            else:
+                total += current_num * scales[word]
+                current_num = 0
+    total += current_num
+
+    return total
+```
+
+### Explanation
+The provided function, `word_to_num`, converts a string of words representing a number into its corresponding integer value. It handles numbers up to millions by recognizing units (one to nineteen), tens (twenty to ninety), and scales (hundred, thousand, million). The function processes each word sequentially, accumulating values as it encounters higher scale terms like "thousand" or "million."
+
+This enhanced solution correctly converts complex number words into their integer equivalents, addressing the original limitation of handling only up to hundreds.

@@ -1,0 +1,31 @@
+[word]
+        elif word == "thousand":
+            total += current * word_num[word]
+            current = 0
+        else:
+            if '-' in word:
+                parts = word.split('-')
+                num = sum(word_num[part] for part in parts)
+            else:
+                num = word_num.get(word, 0)
+            
+            current += num
+    
+    total += current
+    
+    return total
+
+# Example usage:
+print(convert_word_to_number("one hundred twenty-three thousand four hundred fifty-six"))  # Output: 123456
+print(convert_word_to_number("ninety-nine thousand nine hundred ninety-nine"))  # Output: 99999
+```
+
+### Explanation
+1. Mapping Words: The `word_to_num` function creates a dictionary that maps each word to its corresponding numerical value, covering units, teens, and tens.
+2. Processing Each Word: The `convert_word_to_number` function iterates through each word in the input string:
+   - For "hundred", it multiplies the current accumulated value by 100.
+   - For "thousand", it adds the current value multiplied by 1000 to the total sum and resets the current value.
+   - Other words are converted using the dictionary, with hyphenated words being split into their components and summed accordingly.
+3. Summing Up: After processing all words, the function returns the total sum of the parsed numbers.
+
+This approach efficiently handles each part of the input string, ensuring that both small and large numbers are correctly converted into their integer forms.

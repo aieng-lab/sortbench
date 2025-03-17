@@ -1,0 +1,18 @@
+[part]
+    return total
+
+# Sort the number words based on their numerical values
+sorted_words = sorted(number_words, key=convert_word_to_number)
+
+# Print the result as a space-separated string
+print(' '.join(sorted_words))
+```
+
+### Explanation
+1. Reading Input: The input is read as a single line and split into individual words.
+2. Mapping Words to Numbers: A dictionary (`word_to_num`) maps each word component (like "twenty", "three") to its corresponding numerical value.
+3. Conversion Function: The `convert_word_to_number` function processes each word, splitting it by hyphens if necessary and summing the values of each component using the dictionary.
+4. Sorting: The list of number words is sorted using Python's `sorted` function with a custom key that converts each word to its integer value.
+5. Output: The sorted words are joined into a single string and printed.
+
+This approach ensures that we correctly handle numbers up to hundreds and hyphenated compound numbers, providing an efficient and clear solution to the problem.

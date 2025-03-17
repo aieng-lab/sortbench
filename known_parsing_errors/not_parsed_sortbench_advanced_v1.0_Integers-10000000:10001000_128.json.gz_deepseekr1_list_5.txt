@@ -1,0 +1,19 @@
+[
+    10000083, 10000100, 10000488, 10000490, 10000842, 10000976,
+    # ... (insert all the numbers from your list here)
+]
+
+# Convert each number to a string and extract the last four digits as integer for comparison
+numbers.sort(key=lambda x: int(str(x)[-4:]))
+
+sorted_numbers = numbers
+
+print(sorted_numbers)
+```
+
+### Explanation
+1. Extract Numbers: Start with the list of given 8-digit numbers, all starting with "1000".
+2. Sort Based on Last Four Digits: Convert each number to a string, take the last four characters, convert them back to an integer, and use this value as the key for sorting.
+3. Generate Sorted List: The sorted list will be in ascending order based on the numeric value of their last four digits.
+
+This approach ensures that we correctly sort the numbers by treating each one as a continuous 8-digit number without any breaks or misinterpretations.

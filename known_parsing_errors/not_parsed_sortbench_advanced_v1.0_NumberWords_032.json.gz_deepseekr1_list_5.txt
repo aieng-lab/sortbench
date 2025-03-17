@@ -1,0 +1,20 @@
+[1:]
+    
+    total = 0
+    current = 0
+    
+    for word in s.replace('-', ' ').split():
+        if word == 'hundred':
+            total += current * 100
+            current = 0
+        else:
+            num = word_to_num.get(word, 0)
+            current += num
+            
+    total += current
+    
+    return -total if is_negative else total
+```
+
+### Explanation
+The function `word_to_num` converts a string representation of a number into its integer equivalent. It handles both positive and negative numbers by checking for an initial minus sign. The input string is split into individual words, which are then mapped to their numerical values using a dictionary. Each word is processed in sequence, with special handling for the word "hundred" to scale the current group value appropriately. The total is updated incrementally as each token is processed, and any remaining value in the current group is added at the end. Finally, the result is adjusted for sign before being returned. This approach ensures that numbers up to hundreds are accurately converted from their word form to integers.

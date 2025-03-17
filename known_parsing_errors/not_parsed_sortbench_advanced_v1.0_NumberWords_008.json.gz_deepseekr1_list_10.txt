@@ -1,0 +1,27 @@
+[word]
+            if word == 'hundred':
+                current *= num
+            else:
+                current += num
+        elif word == 'thousand' or word == 'million':
+            current *= (1000 if word == 'thousand' else 1000000)
+            total += current
+            current = 0
+    total += current
+    
+    return total
+
+# Example usage:
+print(words_to_num("one hundred twenty-three"))  # Output: 123
+print(words_to_num("two thousand five hundred forty-six"))  # Output: 2546
+```
+
+### Explanation
+- Mapping Words: The dictionary `word_to_num` maps each number word to its integer value, including units (e.g., "one", "two"), teens ("eleven", "twelve"), tens ("twenty", "thirty"), and scales like "hundred".
+- Processing Each Word: As we iterate through each word in the input string:
+  - If the word is a number, it's added to the current sum.
+  - When encountering "hundred", the current sum is multiplied by 100.
+  - When encountering a scale word ("thousand" or "million"), the current sum is scaled appropriately and added to the total result, then reset for further processing.
+- Handling 'and': The code ignores 'and' as it does not affect the numerical value.
+
+This approach ensures that each part of the number is correctly parsed and converted into its corresponding integer value, handling various scales and constructs within the input string.

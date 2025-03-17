@@ -1,0 +1,20 @@
+[
+     Q1 = \frac{-5659.0252 + (-5496.5397)}{2} = \frac{-11155.5649}{2} \approx -5577.78245
+     \]
+
+4. Calculate Q3:
+   - Find the median of the upper half.
+   - Average the 12th and 13th terms in the upper half:
+     \[
+     Q3 = \frac{-1327.9354 + (-1287.0599)}{2} = \frac{-2615.0}{2} \approx -1307.49765
+     \]
+
+5. Compute IQR:
+   \[
+   IQR = Q3 - Q1 = (-1307.49765) - (-5577.78245) = 5570.2848
+   \]
+   Rounded to two decimal places, the IQR is approximately 5570.28.
+
+Final Answer:
+
+The interquartile range (IQR) for the given dataset is \boxed{5570.28}.

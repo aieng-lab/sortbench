@@ -1,0 +1,70 @@
+[0]
+    units_mapping = {
+        "one": 1, "two": 2, "three": 3, "four":4, "five":5,
+        "six":6, "seven":7, "eight":8, "nine":9,
+        "ten":10
+    }
+    unit = units_mapping.get(unit_word, 0)
+    return unit * 100
+
+def parse_remainder(s):
+    if not s:
+        return 0
+    remainder_words = s.replace('-', ' ').split()
+    tens_mapping = {
+        "twenty":20, "thirty":30, "forty":40,
+        "fifty":50, "sixty":60, "seventy":70,
+        "eighty":80, "ninety":90
+    }
+    units_mapping = {
+        "one":1, "two":2, "three":3, "four":4,
+        "five":5, "six":6, "seven":7, "eight":8,
+        "nine":9, "ten":10, "eleven":11,
+        "twelve":12, "thirteen":13, "fourteen":14,
+        "fifteen":15, "sixteen":16, "seventeen":17,
+        "eighteen":18, "nineteen":19
+    }
+    
+    total = 0
+    for word in remainder_words:
+        if word in tens_mapping:
+            total += tens_mapping[word]
+        elif word in units_mapping:
+            total += units_mapping[word]
+    return total
+
+def get_numeric_value(s):
+    if ' and ' in s:
+        parts = s.split(' and ', 1)
+        hundreds_part = parts[0].strip()
+        remainder_part = parts[1].strip()
+        
+        try:
+            hundreds_val = parse_hundreds(hundreds_part)
+        except KeyError:
+            return 0
+        
+        remainder_val = parse_remainder(remainder_part)
+    else:
+        try:
+            hundreds_val = parse_hundreds(s.strip())
+        except KeyError:
+            return 0
+        remainder_val = 0
+    
+    return hundreds_val + remainder_val
+
+def sort_number_strings(strings):
+    numeric_values = [(s, get_numeric_value(s)) for s in strings]
+    sorted_strings = [s[0] for s in sorted(numeric_values, key=lambda x: x[1])]
+    return sorted_strings
+```
+
+### Explanation
+- Mapping Words to Numbers: The dictionaries `units_mapping`, `teens_mapping`, and `tens_mapping` convert word components into their respective numeric values.
+- Parsing Hundreds: The function `parse_hundreds` extracts the unit followed by "hundred" and converts it to its numeric value, multiplying by 100.
+- Handling Remainders: The function `parse_remainder` processes words after "and", converting them into numbers by summing their tens and units values.
+- Combining Values: The function `get_numeric_value` determines if the string contains an "and" to split it into hundreds and remainder parts, then converts each part separately.
+- Sorting Strings: The function `sort_number_strings` uses the parsed numeric values to sort the original strings in ascending order based on their integer equivalents.
+
+This approach efficiently parses and sorts number strings written in words by leveraging dictionary mappings and string operations.

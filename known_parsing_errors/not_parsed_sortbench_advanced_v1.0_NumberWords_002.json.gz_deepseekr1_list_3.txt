@@ -1,0 +1,5 @@
+[
+567 + 245 = 812
+\]
+
+Thus, the final answer is \(\boxed{812}\).

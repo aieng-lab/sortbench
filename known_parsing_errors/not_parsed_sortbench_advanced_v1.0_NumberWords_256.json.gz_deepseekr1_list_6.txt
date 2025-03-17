@@ -1,0 +1,26 @@
+[word]
+
+    tokens = s.split()
+    
+    if 'hundred' in tokens:
+        idx = tokens.index('hundred')
+        hundreds_word = tokens[idx - 1]
+        hundreds = word_to_num(hundreds_word) * 100
+        remaining_tokens = [t for t in tokens[idx+1:] if t != 'and']
+    else:
+        hundreds = 0
+        remaining_tokens = tokens.copy()
+    
+    tens_and_units = sum(word_to_num(t) for t in remaining_tokens)
+    
+    return hundreds + tens_and_units
+```
+
+### Explanation
+
+- Tokenization: The input string is split into individual words, which are then processed sequentially.
+- Hundreds Detection: If the word "hundred" is found, the preceding word is converted to its numerical value and multiplied by 100.
+- Remaining Tokens Processing: Any tokens after "hundred" (excluding "and") are summed up to compute the tens and units part of the number.
+- Combining Results: The hundreds value is added to the tens and units value to produce the final integer result.
+
+This approach efficiently handles numbers in the English language by breaking them down into manageable parts, ensuring accurate conversion from words to their corresponding numerical values.

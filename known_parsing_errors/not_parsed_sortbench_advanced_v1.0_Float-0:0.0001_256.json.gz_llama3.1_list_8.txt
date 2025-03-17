@@ -1,0 +1,22 @@
+The code you provided does not generate a random number as its output is always the same, and it also includes an array of numbers in a comment that seems unrelated to the function's purpose.
+
+However, if we ignore the commented-out array and assume that the intention was indeed to return a random number between 1 and 1000 (inclusive), here's how you could do it:
+
+```python
+import random
+
+def get_random_number():
+    """
+    Returns a random integer between 1 and 1000 (inclusive).
+    """
+    return random.randint(1, 1000)
+
+# Example usage:
+print(get_random_number())
+```
+
+In this code:
+
+*   We import the `random` module to access its functions for generating random numbers.
+*   The `get_random_number` function uses `random.randint(a, b)` to generate a random integer `N` such that `a <= N <= b`.
+*   Finally, we provide an example usage of the function by printing out the generated random number.

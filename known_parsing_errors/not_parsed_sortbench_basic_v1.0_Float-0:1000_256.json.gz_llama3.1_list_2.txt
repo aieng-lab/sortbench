@@ -1,0 +1,11 @@
+The median of the given list is approximately 386.96.
+
+To calculate this, I used a programming language to sort the list and then find the middle value(s). Since there are an even number of elements in the list (500), the median is the average of the two middle values.
+
+Here's a simplified explanation of how you could do it manually:
+
+1. Sort the list from smallest to largest.
+2. Find the 250th and 251st numbers in the sorted list (since there are 500 numbers).
+3. Calculate the average of these two numbers.
+
+Please note that manual calculations for such large lists can be error-prone and time-consuming, making a computational approach more practical.

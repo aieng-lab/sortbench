@@ -1,0 +1,5 @@
+
+
+The final result of summing all the provided negative numbers is:
+
+\boxed{-115610}

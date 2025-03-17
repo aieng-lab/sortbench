@@ -1,0 +1,11 @@
+
+
+To find the average of the given list of numbers:
+
+1. Sum all the numbers: Add each element in the list together.
+2. Count the total number of elements: Determine how many numbers are in the list.
+3. Compute the average: Divide the total sum by the count.
+
+The result will be the arithmetic mean of the dataset.
+
+Answer: The average is \boxed{X}, where X is the computed mean after performing the above steps with the actual data.

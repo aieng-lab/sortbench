@@ -1,0 +1,27 @@
+[word]
+        
+        if num == 1000:  # Handle thousand separately
+            total += current * num
+            current = 0
+        elif num >= 100:
+            current *= num
+        else:
+            current += num
+        
+    total += current
+    
+    return total
+
+# Example usage:
+print(word_to_num('twenty-one thousand'))  # Outputs: 21000
+```
+
+Explanation of Changes:
+
+1. Added "thousand" to the dictionary: This allows the function to recognize and process the word, preventing it from returning -1.
+
+2. Adjusted Logic for Larger Scales: The code now checks if a word represents a scale like thousand or million. When such a word is encountered, it multiplies the current accumulated value by that scale and adds it to the total.
+
+3. Handling of Current Accumulation: The variable `current` accumulates numbers until a larger scale (like hundred, thousand) is encountered, which then gets added to the `total`.
+
+This modification allows the function to correctly process numbers beyond hundreds, including thousands, by expanding the dictionary and enhancing the logic to manage larger scales.

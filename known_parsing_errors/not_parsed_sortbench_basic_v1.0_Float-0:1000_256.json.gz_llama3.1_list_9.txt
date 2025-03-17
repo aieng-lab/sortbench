@@ -1,0 +1,9 @@
+The given list has a length of 301.
+
+Here is the code to determine this:
+
+```
+lst = [insert your long list here]
+
+print(len(lst))
+```

@@ -1,0 +1,16 @@
+
+
+The systems should be sorted lexicographically based on the Unicode values of their characters. Here is the step-by-step process:
+
+1. Compare Characters: Start from the first character of each system name and move to the next if they are identical.
+2. Unicode Values: Use the Unicode code point of each character to determine order; lower code points come first.
+3. Case Sensitivity: Uppercase letters (A-Z, 65-90) have lower Unicode values than lowercase letters (a-z, 97-122), so they appear earlier in sorting.
+
+Example Sorted Order:
+- Aardvark
+- apple
+- Banana
+- cat
+- Dog
+
+This order reflects the lexicographical comparison of each character based on their Unicode code points.

@@ -1,0 +1,20 @@
+[3:])
+    return sorted_list
+
+# Example usage:
+system = [
+    "YYYatomic_number_59",
+    "YYYarui",
+    "YYYas_a_formality",
+    # ... other elements
+]
+
+sorted_system = sort_system(system)
+print(sorted_system)
+```
+
+### Explanation
+1. Extract Substrings: Each string in the list starts with "YYY". By slicing each string from the 4th character onwards (`x[3:]`), we get the substring that needs to be considered for sorting.
+2. Sorting Mechanism: The `sorted()` function is used with a custom key that extracts the relevant substring. This ensures that the strings are compared and ordered based on their meaningful parts after "YYY".
+
+This approach efficiently sorts the list by focusing on the relevant part of each string, ensuring accurate lexicographical ordering as required.

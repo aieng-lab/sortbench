@@ -1,0 +1,24 @@
+[word]
+            total += current
+            current = 0
+        elif word == 'thousand':
+            total = (total + current) * word_to_num[word]
+            current = 0
+        else:
+            num = word_to_num.get(word, 0)
+            if num != 0:
+                current += num
+    
+    return total + current
+
+# Example usage:
+print(words_to_num("ninety-nine thousand nine hundred ninety-nine"))  # Output: 99999
+```
+
+### Explanation
+- Mapping Words: The dictionary `word_to_num` is used to quickly look up the numerical value of each word.
+- String Processing: The input string is converted to lowercase and hyphens are replaced with spaces to ensure consistent processing.
+- Word Splitting: The string is split into individual words for sequential processing.
+- Value Accumulation: As we iterate through each word, we use two accumulators (`current` and `total`) to build up the number. When encountering "hundred" or "thousand", we adjust the accumulators to reflect the correct place value.
+
+This approach efficiently handles numbers up to thousands by breaking down the problem into manageable parts and systematically accumulating values based on the words encountered.

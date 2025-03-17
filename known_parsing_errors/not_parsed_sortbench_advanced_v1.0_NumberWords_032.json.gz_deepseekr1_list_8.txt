@@ -1,0 +1,25 @@
+[word]
+        elif word in tens:
+            current_number += tens[word]
+        elif word == 'hundred':
+            current_number *= scales[word]
+        else:
+            # For scales like thousand, million, etc.
+            scale = scales[word]
+            current_number += total % scale
+            total = (total // scale) * scale + current_number
+            current_number = 0
+
+    return total + current_number
+```
+
+### Explanation
+1. Mapping Words to Values: The code uses dictionaries (`units`, `tens`, `scales`) to map words to their corresponding numerical values.
+
+2. Processing Each Word: The input string is split into individual words, and each word is processed in a loop. Depending on the type of word (unit, ten, hundred, or scale), the current number being built (`current_number`) is updated accordingly.
+
+3. Handling Hundreds and Scales: When encountering "hundred", the current number is multiplied by 100. For scales like "thousand" or "million", the current group value is added to the total after appropriate scaling, and `current_number` is reset for processing subsequent groups.
+
+4. Accumulating Total: The total numerical value is accumulated as each word is processed. This ensures that the final result correctly represents the entire input number in words converted into its numerical form.
+
+This approach efficiently handles the conversion by breaking down complex number words into smaller, manageable parts and systematically converting them into their respective numerical values.

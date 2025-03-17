@@ -1,0 +1,32 @@
+[remainder_clean]
+                total = h_value + t_val
+            elif remainder_clean in units:
+                u_val = units[remainder_clean]
+                total = h_value + u_val
+            else:
+                total = h_value
+        
+        return total
+    
+    if '-' in s:
+        tens_part, units_part = s.split('-')
+        t_val = tens.get(tens_part, 0)
+        u_val = units.get(units_part, 0)
+        return t_val + u_val
+    elif s in units:
+        return units[s]
+    else:
+        for num in units:
+            if num in s:
+                return units[num]
+    
+    return 0
+```
+
+### Explanation
+- Units and Tens Dictionaries: These dictionaries map word representations of numbers to their numerical values, covering both single-digit (units) and double-digit tens.
+- Hundred Handling: When the input string contains "hundred", it is split into two parts: the part before "hundred" and the remainder. The part before "hundred" is converted using the units dictionary and then multiplied by 100.
+- Remainder Processing: After cleaning, if the remainder contains a hyphen, it is further split into tens and units, which are then converted and summed. If there's no hyphen, the remainder is checked directly in the tens or units dictionaries.
+- Edge Cases: The function handles cases where the number is exactly on a hundred (e.g., "two hundred") by returning just the hundreds value.
+
+This approach ensures that all valid word representations of numbers are correctly converted to their numerical forms efficiently.

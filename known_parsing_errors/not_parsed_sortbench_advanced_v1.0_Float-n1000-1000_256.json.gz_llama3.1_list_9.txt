@@ -1,0 +1,22 @@
+The maximum value in the list is 962.8574009393469 and its index (position) is 142. 
+
+Here's a Python code snippet that can be used to find this:
+
+```python
+import numpy as np
+
+data = [YOUR DATA HERE]
+
+# Find max value and its index
+max_value = np.max(data)
+index_of_max_value = data.index(max_value)
+
+print("Max Value: ", max_value)
+print("Index of Max Value: ", index_of_max_value)
+```
+
+This code works by using the numpy library's `np.max()` function to find the maximum value in the list. It then uses Python's built-in `index()` method for lists, which returns the index of the first occurrence of a specified value.
+
+Please replace `[YOUR DATA HERE]` with your actual data.
+
+Also note that this code assumes there are no duplicate maximum values in the list. If there could be duplicates and you want to find all indices of the max value, you would need to use a different approach.

@@ -1,0 +1,57 @@
+['', 'thousand', 'million', 'billion']
+    
+    def convert_three_digits(num):
+        word_map = {
+            1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
+            6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten',
+            11: 'eleven', 12: 'twelve', 13: 'thirteen', 14: 'fourteen',
+            15: 'fifteen', 16: 'sixteen', 17: 'seventeen', 18: 'eighteen',
+            19: 'nineteen'
+        }
+        
+        tens_map = {
+            2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty',
+            6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'
+        }
+        
+        words = []
+        hundred = num // 100
+        if hundred > 0:
+            words.append(word_map[hundred] + ' hundred')
+            num %= 100
+        
+        ten = num // 10
+        unit = num % 10
+        if ten == 1:
+            words.append(word_map[num])
+        elif ten > 1:
+            words.append(tens_map[ten])
+            if unit != 0:
+                words.append(word_map[unit])
+        
+        return ' '.join(words).strip()
+    
+    groups = []
+    while n > 0:
+        groups.append(n % 1000)
+        n = n // 1000
+    
+    result = []
+    for i in range(len(groups)-1, -1, -1):
+        chunk = groups[i]
+        if chunk != 0:
+            part = convert_three_digits(chunk)
+            scale_index = len(groups) - i - 1
+            if scale_index > 0 and scale_index < len(scales):
+                part += ' ' + scales[scale_index]
+            result.append(part)
+    
+    return ' '.join(result).strip()
+```
+
+### Explanation
+1. Break Down the Number: The number is divided into groups of three digits using modulo and integer division operations.
+2. Convert Groups to Words: Each group is converted into words using a helper function `convert_three_digits`, which handles numbers less than 1000 by mapping units, tens, and hundreds.
+3. Append Scale: Each word representation of the group is combined with its appropriate scale (like thousand, million) based on its position from the right end of the number.
+
+This approach ensures that each part of the number is correctly converted into words and scaled appropriately, providing an accurate English word representation of the given number.
