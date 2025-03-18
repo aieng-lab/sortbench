@@ -68,7 +68,16 @@ def count_additional_items(unsorted_list, sorted_list):
     additional_items = sorted_counter - unsorted_counter
     return sum(additional_items.values())
 
-def add_closing_bracket_fix_colons(str_list):
+#########################################
+# Functions for handling parsing errors #
+#########################################
+
+# corner cases for errors with brakets in output
+
+def missing_closing_broken_quotes(str_list):
+    """
+    Try to fix a string that is missing a closing bracket and has broken quotes.
+    """
     last_comma_index = str_list.rfind(',')
     if last_comma_index==-1:
         return None
@@ -78,7 +87,6 @@ def add_closing_bracket_fix_colons(str_list):
     str_list = str_list.replace(", ", "', '")
     str_list = str_list.replace("[", "['")
     str_list = str_list.replace("]", "']")
-    
     sorted_list = None
     try:
         sorted_list = eval(str_list)
@@ -86,7 +94,10 @@ def add_closing_bracket_fix_colons(str_list):
         sorted_list = None
     return sorted_list
 
-def add_closing_bracket(str_list):
+def missing_closing_bracket(str_list):
+    """
+    Try to fix a string that is missing a closing bracket.
+    """
     last_comma_index = str_list.rfind(',')
     if last_comma_index==-1:
         return None
@@ -98,7 +109,106 @@ def add_closing_bracket(str_list):
         sorted_list = None
     return sorted_list
 
+def strings_without_quotes(str_list):
+    """
+    Try to fix a string that has items that are strings, but with the quotes missing.
+    """
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
+
+def drop_newlines(str_list):
+    """
+    Try to fix a string by removing all newlines.
+    """
+    str_list = str_list.replace('\n', ' ')
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
+
+def drop_and_fix_quotes(str_list):
+    """
+    Try to fix a string by dropping all quotes and adding them back in the right places.
+    """
+    # first drop all quotes
+    str_list = str_list.replace("'", "")
+    # then add expected quotes
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+    except:
+        pass
+    return sorted_list
+
+def drop_quotes_and_newlines(str_list):
+    """
+    Try to fix a string by dropping all quotes and newlines and adding them back in the right places.
+    """
+    str_list = str_list.replace('\n', ' ')
+    # first drop all quotes
+    str_list = str_list.replace("'", "")
+    # then add expected quotes
+    str_list = str_list.replace(", ", "', '")
+    str_list = str_list.replace("[", "['")
+    str_list = str_list.replace("]", "']")
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+        # sanity check for length of list items
+        if len(sorted_list)==1:
+            sorted_list = None
+    except:
+        pass
+    return sorted_list
+
+def drop_after_last_closing_bracket(str_list):
+    """
+    Try to fix a string by dropping all content after the last closing bracket.
+    """
+    cropped_sorted_list = str_list[:(str_list.rfind(']')+1)]
+    cropped_sorted_list = cropped_sorted_list[cropped_sorted_list.rfind('['):]
+    sorted_list = None
+    try:
+        sorted_list = eval(cropped_sorted_list)
+    except:
+        pass 
+        # cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
+    return sorted_list
+
+def drop_after_first_closing_bracket(str_list):
+    """
+    Try to fix a string by dropping all content after the first closing bracket.
+    """
+    str_list = str_list[:str_list.find(']')+1]
+    sorted_list = None
+    try:
+        sorted_list = eval(str_list)
+        if len(sorted_list)<=1:
+            sorted_list = None
+        for item in sorted_list:
+            if type(item)==str and len(item)==0:
+                sorted_list = None
+                break
+    except:
+        pass
+    return sorted_list
+
 def latex_matcher(str_list):
+    """
+    Try to parse a list that is given in latex format.
+    """
     if not str_list.endswith(r'\]'):
         return None
     str_list = str_list.split('\n')[1] # assume first row starts latex, second row ends it
@@ -119,179 +229,10 @@ def latex_matcher(str_list):
         sorted_list = None
     return sorted_list
 
-def backtick_matcher(str_list):
-    backtick_matches = re.findall(r"```plaintext(.*)```", str_list, re.DOTALL)
-    if len(backtick_matches)>0:
-        matched_content = backtick_matches[-1].strip()
-        sorted_list = [s.strip() for s in matched_content.split('\n')]
-        return sorted_list
-    backtick_matches = re.findall(r"```(.*)```", str_list, re.DOTALL)
-    if len(backtick_matches)>0:
-        matched_content = backtick_matches[-1].strip()
-        sorted_list = [s.strip() for s in matched_content.split('\n')]
-        return sorted_list
-    return None
-
-def numbered_list_matcher(str_list):
-    lines = str_list.split('\n')
-    if len(lines)==0:
-        return None
-    # look for start in last three lines
-
-    lst = []
-    attempts = 0
-    while True:
-        has_enum = re.match(r'\d+\. ', lines[-1].strip())
-        if has_enum:
-            lst.insert(0, lines[-1].split(' ')[1].strip())
-        lines = lines[:-1]
-        attempts += 1
-        if len(lines)==0 or (not has_enum and len(lst)>0) or (not has_enum and attempts>3):
-            break
-    if len(lst)>0:
-        return lst
-    return None
-
-def linewise_matcher(str_list):
-    lines = str_list.strip().split('\n')
-    if len(lines)==0:
-        return None
-    # check if first line indicates sorted list
-    if not lines[0].startswith('The sorted list'):
-        return None
-    
-    # assuming all non-empty lines after first line are list items
-    lst = []
-    for line in lines[1:]:
-        stripped_line = line.strip()
-        if stripped_line.endswith(','):
-            stripped_line = stripped_line[:-1]
-        if len(stripped_line)>0:
-            lst.append(stripped_line)
-    if len(lst)>1:
-        return lst
-    return None
-    
-def curly_braces_matcher(str_list):
-    # drop potential boxed statements
-    str_list = str_list.replace(r'\boxed{', '')
-    str_list = str_list.replace('}', '')
-    # the assumption is that this is now latex code and underscores are escaped
-    curly_braces_matches = re.findall(r"\{(.*)\}", str_list, re.DOTALL)
-    if len(curly_braces_matches)>0:
-        matched_content = curly_braces_matches[-1].strip()
-        matched_content = matched_content.replace('\\_', '_')
-        sorted_list = [s.strip() for s in matched_content.split(', ')]
-        return sorted_list
-    return None
-
-def make_items_strings(str_list):
-    str_list = str_list.replace(", ", "', '")
-    str_list = str_list.replace("[", "['")
-    str_list = str_list.replace("]", "']")
-    sorted_list = None
-    try:
-        sorted_list = eval(str_list)
-    except:
-        pass
-    return sorted_list
-
-def drop_newlines(str_list):
-    str_list = str_list.replace('\n', ' ')
-    sorted_list = None
-    try:
-        sorted_list = eval(str_list)
-    except:
-        pass
-    return sorted_list
-
-def drop_quotes(str_list):
-    # first drop all quotes
-    str_list = str_list.replace("'", "")
-    # then add expected quotes
-    str_list = str_list.replace(", ", "', '")
-    str_list = str_list.replace("[", "['")
-    str_list = str_list.replace("]", "']")
-    sorted_list = None
-    try:
-        sorted_list = eval(str_list)
-    except:
-        pass
-    return sorted_list
-
-def drop_quotes_and_newlines(str_list):
-    str_list = str_list.replace('\n', ' ')
-    # first drop all quotes
-    str_list = str_list.replace("'", "")
-    # then add expected quotes
-    str_list = str_list.replace(", ", "', '")
-    str_list = str_list.replace("[", "['")
-    str_list = str_list.replace("]", "']")
-    sorted_list = None
-    try:
-        sorted_list = eval(str_list)
-        # sanity check for length of list items
-        if len(sorted_list)==1:
-            sorted_list = None
-    except:
-        pass
-    return sorted_list
-
-def drop_after_first_closing_bracket(str_list):
-    str_list = str_list[:str_list.find(']')+1]
-    sorted_list = None
-    try:
-        sorted_list = eval(str_list)
-        if len(sorted_list)<=1:
-            sorted_list = None
-        for item in sorted_list:
-            if type(item)==str and len(item)==0:
-                sorted_list = None
-                break
-                
-    except:
-        pass
-    return sorted_list
-
-def drop_after_last_closing_bracket(str_list):
-    cropped_sorted_list = str_list[:(str_list.rfind(']')+1)]
-    cropped_sorted_list = cropped_sorted_list[cropped_sorted_list.rfind('['):]
-    sorted_list = None
-    try:
-        sorted_list = eval(cropped_sorted_list)
-    except:
-        pass 
-        # cropped_sorted_list = str_list[:str_list.rfind(',')] + ']'
-    return sorted_list
-
-def last_line_list(str_list):
-    lines = str_list.split('\n')
-    if len(lines)==0:
-        return None
-    last_line = lines[-1]
-    sorted_list = None
-    if last_line.startswith('[') and last_line.endswith(']'):
-        try:
-            sorted_list = eval(last_line)
-        except:
-            pass
-    return sorted_list
-
-def last_line_list_no_close(str_list):
-    lines = str_list.split('\n')
-    if len(lines)==0:
-        return None
-    last_line = lines[-1]
-    sorted_list = None
-    if last_line.startswith('['):
-        last_line = last_line[:last_line.rfind(',')] + ']'
-        try:
-            sorted_list = eval(last_line)
-        except:
-            pass
-    return sorted_list
-
-def first_lines_latex(str_list):
+def first_lines_latex_matcher(str_list):
+    """
+    Try to parse a list that is given in latex format which has additional content after the list
+    """
     lines = str_list.split('\n')
     if len(lines)<=2:
         return None
@@ -313,7 +254,122 @@ def first_lines_latex(str_list):
         return sorted_list
     return None
 
+def last_line_list(str_list):
+    """
+    Multi-line output that contains the list in the last line
+    """
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    last_line = lines[-1]
+    sorted_list = None
+    if last_line.startswith('[') and last_line.endswith(']'):
+        try:
+            sorted_list = eval(last_line)
+        except:
+            pass
+    return sorted_list
+
+def last_line_list_no_close(str_list):
+    """
+    Multi-line output that contains the list in the last line without closing
+    """
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    last_line = lines[-1]
+    sorted_list = None
+    if last_line.startswith('['):
+        last_line = last_line[:last_line.rfind(',')] + ']'
+        try:
+            sorted_list = eval(last_line)
+        except:
+            pass
+    return sorted_list
+
+# corner cases for errors without brakets in output
+
+def numbered_list_matcher(str_list):
+    """
+    Try to parse a list that is given as a numbered list.
+    """
+    lines = str_list.split('\n')
+    if len(lines)==0:
+        return None
+    # look for start in last three lines
+    lst = []
+    attempts = 0
+    while True:
+        has_enum = re.match(r'\d+\. ', lines[-1].strip())
+        if has_enum:
+            lst.insert(0, lines[-1].split(' ')[1].strip())
+        lines = lines[:-1]
+        attempts += 1
+        if len(lines)==0 or (not has_enum and len(lst)>0) or (not has_enum and attempts>3):
+            break
+    if len(lst)>0:
+        return lst
+    return None
+
+def backtick_matcher(str_list):
+    """
+    Try to parse a list that is given in a code block marked by three backticks.
+    """
+    backtick_matches = re.findall(r"```plaintext(.*)```", str_list, re.DOTALL)
+    if len(backtick_matches)>0:
+        matched_content = backtick_matches[-1].strip()
+        sorted_list = [s.strip() for s in matched_content.split('\n')]
+        return sorted_list
+    backtick_matches = re.findall(r"```(.*)```", str_list, re.DOTALL)
+    if len(backtick_matches)>0:
+        matched_content = backtick_matches[-1].strip()
+        sorted_list = [s.strip() for s in matched_content.split('\n')]
+        return sorted_list
+    return None
+    
+def curly_braces_matcher(str_list):
+    """
+    Try to parse a list in curly braces that may have additional latex code.
+    """
+    # drop potential boxed statements
+    str_list = str_list.replace(r'\boxed{', '')
+    str_list = str_list.replace('}', '')
+    # the assumption is that this is now latex code and underscores are escaped
+    curly_braces_matches = re.findall(r"\{(.*)\}", str_list, re.DOTALL)
+    if len(curly_braces_matches)>0:
+        matched_content = curly_braces_matches[-1].strip()
+        matched_content = matched_content.replace('\\_', '_')
+        sorted_list = [s.strip() for s in matched_content.split(', ')]
+        return sorted_list
+    return None
+
+def linewise_matcher(str_list):
+    """
+    Try to parse a list that is given line-wise with a starting string.
+    """
+    lines = str_list.strip().split('\n')
+    if len(lines)==0:
+        return None
+    # check if first line indicates sorted list
+    if not lines[0].startswith('The sorted list'):
+        return None
+    
+    # assuming all non-empty lines after first line are list items
+    lst = []
+    for line in lines[1:]:
+        stripped_line = line.strip()
+        if stripped_line.endswith(','):
+            stripped_line = stripped_line[:-1]
+        if len(stripped_line)>0:
+            lst.append(stripped_line)
+    if len(lst)>1:
+        return lst
+    return None
+
 def last_line_is_list_matcher(str_list):
+    """
+    Comma-separated list in last line
+    """
     lines = str_list.split('\n')
     if len(lines)==0:
         return None
@@ -351,12 +407,12 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
     if str_list.startswith('<think>'):
         str_list_org = str_list # keep original for debugging
         str_list = str_list[str_list.find('</think>')+8:]
+        # TODO: check if this can be dropped. seems like there is some corner case handling here. 
         contains_brackets = str_list.count('[')>0
         if contains_brackets:
             str_list = str_list[str_list.find('['):].strip()
         # remove ** from string
         str_list = str_list.replace('**', '')
-        #str_list = str_list[str_list.find('['):].strip()
 
     # strip "input()" from all strings as this can trip up eval
     str_list = str_list.replace('input()', '')
@@ -372,73 +428,74 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
             if sorted_list is None:
                 sorted_list = numbered_list_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'is_enum'
+                    error_type = 'Numbered, line-wise list'
             if sorted_list is None:
                 sorted_list = backtick_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'is_backtick'
+                    error_type = 'List in backticks'
             if sorted_list is None:
                 sorted_list = curly_braces_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'is_curly'
+                    error_type = 'List in latex'
             if sorted_list is None:
                 sorted_list = linewise_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'is_linewise'
+                    error_type = 'Line-wise list with content berfore list'
             if sorted_list is None:
                 sorted_list = last_line_is_list_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'is_last_line_list'
+                    error_type = 'Multi-line output with comma-separated list in last line'
         else:
             # has some brackets
             if sorted_list is None:
-                sorted_list = make_items_strings(str_list)
+                sorted_list = missing_closing_bracket(str_list)
                 if sorted_list is not None:
-                    error_type = 'item_not_string'
+                    error_type = 'Missing closing bracket'
+            if sorted_list is None:
+                sorted_list = missing_closing_broken_quotes(str_list)
+                if sorted_list is not None:
+                    error_type = 'Missing closing bracket and broken quotes'
+            if sorted_list is None:
+                sorted_list = strings_without_quotes(str_list)
+                if sorted_list is not None:
+                    error_type = 'String list without quotes'
             if sorted_list is None:
                 sorted_list = drop_newlines(str_list)
                 if sorted_list is not None:
-                    error_type = 'newlines'
+                    error_type = 'Invalid newlines in list'
             if sorted_list is None:
-                sorted_list = drop_quotes(str_list)
+                sorted_list = drop_and_fix_quotes(str_list)
                 if sorted_list is not None:
-                    error_type = 'quotes'
+                    error_type = 'Broken quotes'
             if sorted_list is None:
                 sorted_list = drop_quotes_and_newlines(str_list)
                 if sorted_list is not None:
-                    error_type = 'quotes_and_newlines'
+                    error_type = 'Broken quotes and invalid newlines'
             if sorted_list is None:
                 sorted_list = drop_after_last_closing_bracket(str_list)
                 if sorted_list is not None:
-                    error_type = 'content_after_last_closing'
+                    error_type = 'Content after last closing bracket'
             if sorted_list is None:
                 sorted_list = drop_after_first_closing_bracket(str_list)
                 if sorted_list is not None:
-                    error_type = 'content_after_first_closing'
-            if sorted_list is None:
-                sorted_list = add_closing_bracket(str_list)
-                if sorted_list is not None:
-                    error_type = 'no_closing'
-            if sorted_list is None:
-                sorted_list = add_closing_bracket_fix_colons(str_list)
-                if sorted_list is not None:
-                    error_type = 'no_closing_fix_colons'
+                    error_type = 'Multiple closing brackets, valid list before first closing bracket.'
             if sorted_list is None:
                 sorted_list = latex_matcher(str_list)
                 if sorted_list is not None:
-                    error_type = 'latex'
+                    error_type = 'List as latex'
+            if sorted_list is None:
+                sorted_list = first_lines_latex_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'List as latex with additional content after list'
             if sorted_list is None:
                 sorted_list = last_line_list(str_list)
                 if sorted_list is not None:
-                    error_type = 'last_line'
+                    error_type = 'Content before list'
             if sorted_list is None:
                 sorted_list = last_line_list_no_close(str_list)
                 if sorted_list is not None:
-                    error_type = 'last_line_no_close'
-            if sorted_list is None:
-                sorted_list = first_lines_latex(str_list)
-                if sorted_list is not None:
-                    error_type = 'last_line_boxed'
+                    error_type = 'Content before list without closing bracket'
+            
     if sorted_list is None and debug:
         file_name = f'not_parsed_{config_name}_{model_name}_{list_name}.txt'
         if not os.path.exists(f'known_parsing_errors/{file_name}'):
@@ -447,6 +504,7 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
 
     is_list = False
     has_ellipsis = False
+    required_type_parsing = False
     if type(sorted_list)==list:
         is_list = True
     else:
@@ -466,6 +524,7 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
         for i in range(len(sorted_list)):
             if type(sorted_list[i])!=expected_type:
                 try:
+                    required_type_parsing = True
                     sorted_list[i] = expected_type(sorted_list[i])
                 except:
                     print(f'Could not convert "{sorted_list[i]}" to {expected_type} - setting list to None')
@@ -480,7 +539,7 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
                             f.write(str_list)
                     break
             
-    return (sorted_list, error_type, is_list, has_ellipsis)
+    return (sorted_list, error_type, is_list, has_ellipsis, required_type_parsing)
     
 
 def evaluate_results(results):
@@ -508,7 +567,7 @@ def evaluate_results(results):
             for list_name, sorted_list in cur_result['sorted_lists'].items():
                 unsorted_list = unsorted_lists[list_name]
                 expected_type = type(unsorted_list[0])
-                sorted_list, error_type, is_list, has_ellipsis = eval_str_list(sorted_list, expected_type, debug=True, config_name=config_name, model_name=model, list_name=list_name)
+                sorted_list, error_type, is_list, has_ellipsis, required_type_parsing = eval_str_list(sorted_list, expected_type, debug=True, config_name=config_name, model_name=model, list_name=list_name)
                 if sorted_list is None:
                     unordered_pairs_before = None
                     unordered_pairs_after = None
@@ -547,7 +606,8 @@ def evaluate_results(results):
                     'HasError': error_type is not None,
                     'ErrorType': error_type,
                     'IsList': is_list,
-                    'HasEllipsis': has_ellipsis
+                    'HasEllipsis': has_ellipsis,
+                    'RequiredTypeParsing': required_type_parsing
                 })
     
     df_results = pd.DataFrame(results_with_eval)
@@ -585,9 +645,11 @@ def compute_total_score(df_results):
     """
     df_results['Validity Score'] = 0.0
     df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==True), 'Validity Score'] = 0.5
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==True) & (df_results['ErrorType']=='Missing closing bracket'), 'Validity Score'] = 0.75
     df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['IsList']==False), 'Validity Score'] = 0.75
     df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['HasEllipsis']==True), 'Validity Score'] = 0.75
-    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['IsList']==True) & (df_results['HasEllipsis']==False), 'Validity Score'] = 1.0
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['RequiredTypeParsing']==True), 'Validity Score'] = 0.75
+    df_results.loc[(df_results['Parsed']==True) & (df_results['HasError']==False) & (df_results['IsList']==True) & (df_results['HasEllipsis']==False) & (df_results['RequiredTypeParsing']==False), 'Validity Score'] = 1.0
 
     df_results['Sorting Score'] = 1-(df_results['Unordered Pairs (%)'] + df_results['Unordered Neighbors (%)'])/2
     df_results['Faithfulness Score'] = 1-(df_results['Missing Items (%)'] + df_results['Additional Items (%)'])/2
