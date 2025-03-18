@@ -254,6 +254,31 @@ def first_lines_latex_matcher(str_list):
         return sorted_list
     return None
 
+def last_lines_latex_matcher(str_list):
+    """
+    Try to parse a list that is given in latex format which has additional content before the list
+    """
+    lines = str_list.split('\n')
+    if len(lines)<=2:
+        return None
+    if lines[-3].startswith(r'\[') and lines[-1].endswith(r'\]'):
+        str_list = lines[-2]
+        # drop all instances of \boxed{ and }
+        if str_list.startswith(r'\boxed{'):
+            str_list = str_list.replace(r'\boxed{', '')
+            str_list = str_list.replace('}', '')
+        if not str_list.startswith(r'['):
+            str_list = '[' + str_list
+        if not str_list.endswith(r']'):
+            str_list = str_list + ']'
+        sorted_list = None
+        try:
+            sorted_list = eval(str_list)
+        except:
+            sorted_list = None
+        return sorted_list
+    return None
+
 def last_line_list(str_list):
     """
     Multi-line output that contains the list in the last line
@@ -487,6 +512,10 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
                 sorted_list = first_lines_latex_matcher(str_list)
                 if sorted_list is not None:
                     error_type = 'List as latex with additional content after list'
+            if sorted_list is None:
+                sorted_list = last_lines_latex_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'List as latex with additional content before list'
             if sorted_list is None:
                 sorted_list = last_line_list(str_list)
                 if sorted_list is not None:
