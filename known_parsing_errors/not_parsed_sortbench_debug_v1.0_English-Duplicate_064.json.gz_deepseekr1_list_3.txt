@@ -1,0 +1,22 @@
+[True] * (s + 1)
+    sieve[0] = sieve[1] = False
+    for i in range(2, int(s  0.5) + 1):
+        if sieve[i]:
+            sieve[i*i : s+1 : i] = [False] * len(sieve[i*i : s+1 : i])
+    
+    count = 0
+    # We only need to check up to half of s because beyond that, pairs repeat.
+    for x in range(2, (s // 2) + 1):
+        y = s - x
+        if sieve[x] and sieve[y]:
+            count += 1
+    
+    return count
+```
+
+### Explanation
+- Sieve of Eratosthenes: This algorithm efficiently marks non-prime numbers in a boolean array up to the given integer s. By iterating through each number starting from 2, it marks multiples of each prime as non-prime.
+- Prime Pair Check: After generating the sieve, we iterate through each possible value of x from 2 to s//2. For each x, we compute y as s - x and check if both x and y are prime using the precomputed sieve array.
+- Efficiency: The Sieve of Eratosthenes runs in O(n log log n) time complexity, which is much faster for large values of s compared to trial division. This allows us to handle larger inputs efficiently.
+
+This approach ensures that we can quickly and accurately determine all prime pairs (x, y) such that x + y = s, making it suitable for larger values of s where performance is critical.

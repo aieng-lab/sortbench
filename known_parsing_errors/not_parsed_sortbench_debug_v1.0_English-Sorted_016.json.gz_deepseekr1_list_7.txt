@@ -1,0 +1,16 @@
+
+
+The system uses lexicographical ordering to sort words. Here’s how it works:
+
+1. Compare each character from left to right.
+2. The string with the smaller character at the first differing position comes first.
+3. If one string is a prefix of the other, the shorter string comes first.
+
+Applying this:
+
+- strip-search vs. struthionidae: At the fourth character, 'i' < 'u', so "strip-search" comes before "struthionidae".
+- After these, words starting with 'suck', 'sug', and then 'sweet' follow since 'su...' precedes 'sw...'.
+
+Final Answer:
+
+\boxed{strip-search, struthionidae, suckle, sugi, sweet-balm}

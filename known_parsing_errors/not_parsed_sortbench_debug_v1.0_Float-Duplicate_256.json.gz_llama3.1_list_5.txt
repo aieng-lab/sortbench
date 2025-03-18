@@ -1,0 +1,4 @@
+import numpy as np
+data = [/* your data here */]
+mean_data = np.mean(data)
+print(mean_data)

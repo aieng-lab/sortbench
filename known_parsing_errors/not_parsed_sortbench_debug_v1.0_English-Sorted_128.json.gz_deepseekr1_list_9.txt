@@ -1,0 +1,20 @@
+[c for c in s if c.isalnum()])
+
+    # Apply the filter
+    filtered_s1 = filter_alnum(s1_lower)
+    filtered_s2 = filter_alnum(s2_lower)
+
+    # Sort both strings and compare
+    return sorted(filtered_s1) == sorted(filtered_s2)
+
+# Example usage:
+print(is_anagram("Listen", "silent"))  # True
+print(is_anagram("Hello", "World"))    # False
+```
+
+### Explanation
+- Lowercase Conversion: By converting both strings to lowercase, we ensure that the comparison is case-insensitive. For example, 'A' and 'a' are treated as the same character.
+- Filtering Non-Alphanumeric Characters: This step removes any characters that are not letters or numbers, ensuring they do not interfere with the anagram check.
+- Sorting and Comparing: Sorting both filtered strings and checking if they are identical is a straightforward method to determine if two sets of characters are permutations of each other.
+
+This solution efficiently handles typical edge cases such as differing cases and non-alphanumeric characters, providing accurate results for whether two strings can be considered anagrams.

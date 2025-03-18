@@ -1,0 +1,13 @@
+[{key: data[key]} for key in sorted_keys]
+
+# Print the result
+for item in result:
+    print(item)
+```
+
+### Explanation
+1. Extract Keys: We start by extracting all the keys from the provided dictionary.
+2. Sort Keys: Using Python's built-in `sorted()` function, we sort these keys lexicographically.
+3. Create Pairs: For each key in the sorted list, we create a dictionary where both the key and value are the same, resulting in a list of single-key-value dictionaries.
+
+This approach ensures that the final output is a list of key-value pairs sorted alphabetically by their keys, which meets the problem's requirements efficiently.

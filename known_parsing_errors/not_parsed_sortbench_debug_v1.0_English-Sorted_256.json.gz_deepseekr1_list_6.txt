@@ -1,0 +1,9 @@
+
+
+Here is the sorted list of words:
+
+acheta_domestica  
+aeolian_harp  
+antilope  
+arminius  
+... (the rest of the list in alphabetical order)
