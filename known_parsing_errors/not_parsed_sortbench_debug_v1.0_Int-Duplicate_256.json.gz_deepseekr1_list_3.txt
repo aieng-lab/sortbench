@@ -1,0 +1,11 @@
+[i] * count
+    return total
+```
+
+### Explanation
+1. Initialization: We start by initializing a variable `total` to accumulate the sum of contributions from all elements.
+2. Iterate through each element: For each element at index `i`, compute its contribution using `(i + 1) * (n - i)`.
+3. Accumulate the contribution: Multiply the current element by this count and add it to `total`.
+4. Return the result: After processing all elements, return the accumulated sum stored in `total`.
+
+This method efficiently computes the desired sum with a time complexity of O(n), making it suitable for large arrays.

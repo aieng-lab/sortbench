@@ -1,0 +1,5 @@
+
+
+The sorted system list in ascending order is:
+
+3, 3, 5, 5, 9, 9, 10, 10, 15, 15, 19, 19, 37, 37, 45, 45, 62, 62, ... up to the largest number, which is repeated as per their occurrence in the original list.
