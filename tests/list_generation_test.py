@@ -1,5 +1,4 @@
 import unittest
-import inflect
 
 import sortbench.util.data_utils as data_utils
 
