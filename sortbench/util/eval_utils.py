@@ -279,6 +279,26 @@ def last_lines_latex_matcher(str_list):
         return sorted_list
     return None
 
+def last_line_latex_matcher(str_list):
+    """
+    Try to parse a list that is given in latex format which has additional content before the list
+    """
+    lines = str_list.split('\n')
+    if len(lines)<=2:
+        return None
+    if lines[-1].startswith(r'\[') and lines[-1].endswith(r'\]'):
+        str_list = lines[-1]
+        # drop all instances of \boxed{ and }
+        str_list = str_list.replace(r'\[', '[')
+        str_list = str_list.replace(r'\]', ']')
+        sorted_list = None
+        try:
+            sorted_list = eval(str_list)
+        except:
+            sorted_list = None
+        return sorted_list
+    return None
+
 def last_line_list(str_list):
     """
     Multi-line output that contains the list in the last line
@@ -308,6 +328,17 @@ def last_line_list_no_close(str_list):
         last_line = last_line[:last_line.rfind(',')] + ']'
         try:
             sorted_list = eval(last_line)
+        except:
+            pass
+    return sorted_list
+
+def last_items_incomplete(str_list):
+    sorted_list = None
+    if str_list.startswith('[') and str_list.endswith(']'):
+        # drop all ... from string
+        str_list = str_list.replace('...', '')
+        try:
+            sorted_list = eval(str_list)
         except:
             pass
     return sorted_list
@@ -477,6 +508,10 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
                 if sorted_list is not None:
                     error_type = 'Missing closing bracket'
             if sorted_list is None:
+                sorted_list = last_items_incomplete(str_list)
+                if sorted_list is not None:
+                    error_type = 'Incomplete list items at the end'
+            if sorted_list is None:
                 sorted_list = missing_closing_broken_quotes(str_list)
                 if sorted_list is not None:
                     error_type = 'Missing closing bracket and broken quotes'
@@ -514,6 +549,10 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
                     error_type = 'List as latex with additional content after list'
             if sorted_list is None:
                 sorted_list = last_lines_latex_matcher(str_list)
+                if sorted_list is not None:
+                    error_type = 'List as latex with additional content before list'
+            if sorted_list is None:
+                sorted_list = last_line_latex_matcher(str_list)
                 if sorted_list is not None:
                     error_type = 'List as latex with additional content before list'
             if sorted_list is None:
