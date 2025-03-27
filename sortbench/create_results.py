@@ -14,6 +14,8 @@ def main():
     parser.add_argument('--mode', type=str, default="basic", help='Mode for the benchmark data, i.e., basic or advanced (default: basic)')
     parser.add_argument('--version', type=str, default="v1.0", help='Version of the benchmark data (default: v1.0)')
     parser.add_argument('--model_names', nargs='+', default=["gpt-4o-mini"], help='List of model names to run inference on (default: ["gpt-4o-mini"])')
+    parser.add_argument('--list_length', type=int, default=None, help='Runs only configurations with lists of this length (default: None)')
+    parser.add_argument('--n_lists', type=int, default=None, help='Runs only the first n_lists lists for a configuration (default: None)')
 
     args = parser.parse_args()
     
@@ -25,6 +27,26 @@ def main():
 
     # Load benchmark data and existing results
     configs = data_utils.load_data_local(file_path=args.data_path, name=args.name, mode=args.mode, version=args.version)
+    
+    if args.list_length is not None:
+        filtered_configs = {}
+        for config_name, lists in configs.items():
+            cur_len = len(next(iter(lists.values())))
+            if cur_len == args.list_length:
+                filtered_configs[config_name] = lists
+        configs = filtered_configs
+
+    if args.n_lists is not None:
+        filtered_configs = {}
+        for config_name, lists in configs.items():
+            filtered_lists = {}
+            n_added = 0
+            for list_name, list_data in lists.items():
+                if n_added < args.n_lists:
+                    filtered_lists[list_name] = list_data
+                    n_added += 1
+            filtered_configs[config_name] = filtered_lists
+        configs = filtered_configs
 
     for model in models:
         for config_name, lists in configs.items():
