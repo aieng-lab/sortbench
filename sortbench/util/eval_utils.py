@@ -635,6 +635,11 @@ def evaluate_results(results):
             for list_name, sorted_list in cur_result['sorted_lists'].items():
                 unsorted_list = unsorted_lists[list_name]
                 expected_type = type(unsorted_list[0])
+                num_chars = len(sorted_list)
+                thinking_length = 0
+                thinking_pos = sorted_list.rfind('</think>')
+                if thinking_pos!=-1:
+                    thinking_length = deepseek_numtokens(sorted_list[:thinking_pos+8])
                 sorted_list, error_type, is_list, has_ellipsis, required_type_parsing = eval_str_list(sorted_list, expected_type, debug=True, config_name=config_name, model_name=model, list_name=list_name)
                 if sorted_list is None:
                     unordered_pairs_before = None
@@ -654,8 +659,8 @@ def evaluate_results(results):
                     count_additional = count_additional_items(unsorted_list, sorted_list)
                     len_diff = len(unsorted_list)-len(sorted_list)
                     is_parsed = True
-    
-                results_with_eval.append({
+
+                result_dict = {
                     'Benchmark': benchmark_name,
                     'Mode': benchmark_mode,
                     'Version': benchmark_version,
@@ -670,18 +675,75 @@ def evaluate_results(results):
                     'Missing Items': count_missing,
                     'Additional Items': count_additional,
                     'Length Difference': len_diff,
+                    'Output Length': num_chars,
+                    'Thinking Length': thinking_length,
                     'Parsed': is_parsed,
                     'HasError': error_type is not None,
                     'ErrorType': error_type,
                     'IsList': is_list,
                     'HasEllipsis': has_ellipsis,
                     'RequiredTypeParsing': required_type_parsing
-                })
+                }
+
+                results_with_eval.append(result_dict)
     
     df_results = pd.DataFrame(results_with_eval)
     df_results = normalize_metrics(df_results)
     df_results = compute_total_score(df_results)
     return df_results
+
+def score_single_results(sorted_list, unsorted_list, benchmark_name, benchmark_mode, benchmark_version, config_name, model, data_type, list_length, list_name):
+    expected_type = type(unsorted_list[0])
+    num_chars = len(sorted_list)
+    thinking_length = 0
+    thinking_pos = sorted_list.rfind('</think>')
+    if thinking_pos!=-1:
+        thinking_length = deepseek_numtokens(sorted_list[:thinking_pos+8])
+    sorted_list, error_type, is_list, has_ellipsis, required_type_parsing = eval_str_list(sorted_list, expected_type, debug=True, config_name=config_name, model_name=model, list_name=list_name)
+    if sorted_list is None:
+        unordered_pairs_before = None
+        unordered_pairs_after = None
+        unordered_neighbors_before = None
+        unordered_neighbors_after = None
+        count_missing = None
+        count_additional = None
+        len_diff = None
+        is_parsed = False
+    else:
+        unordered_pairs_before = count_unordered_pairs(unsorted_list)
+        unordered_pairs_after = count_unordered_pairs(sorted_list)
+        unordered_neighbors_before = count_unordered_neighbors(unsorted_list)
+        unordered_neighbors_after = count_unordered_neighbors(sorted_list)
+        count_missing = count_missing_items(unsorted_list, sorted_list)
+        count_additional = count_additional_items(unsorted_list, sorted_list)
+        len_diff = len(unsorted_list)-len(sorted_list)
+        is_parsed = True
+
+    result_dict = {
+        'Benchmark': benchmark_name,
+        'Mode': benchmark_mode,
+        'Version': benchmark_version,
+        'Model': model,
+        'Type': data_type,
+        'Size': list_length,
+        'List Name': list_name,
+        'Unordered Pairs Before': unordered_pairs_before,
+        'Unordered Pairs After': unordered_pairs_after,
+        'Unordered Neighbors Before': unordered_neighbors_before,
+        'Unordered Neighbors After': unordered_neighbors_after,
+        'Missing Items': count_missing,
+        'Additional Items': count_additional,
+        'Length Difference': len_diff,
+        'Output Length': num_chars,
+        'Thinking Length': thinking_length,
+        'Parsed': is_parsed,
+        'HasError': error_type is not None,
+        'ErrorType': error_type,
+        'IsList': is_list,
+        'HasEllipsis': has_ellipsis,
+        'RequiredTypeParsing': required_type_parsing
+    }
+    return result_dict
 
 def normalize_metrics(df_results):
     """
@@ -721,5 +783,16 @@ def compute_total_score(df_results):
 
     df_results['Sorting Score'] = 1-(df_results['Unordered Pairs (%)'] + df_results['Unordered Neighbors (%)'])/2
     df_results['Faithfulness Score'] = 1-(df_results['Missing Items (%)'] + df_results['Additional Items (%)'])/2
-    df_results['SortBench Score'] = df_results['Validity Score']*(df_results['Sorting Score'] + df_results['Faithfulness Score'])/2
+    df_results.loc[df_results['Validity Score']>0, 'SortBench Score'] = df_results['Validity Score']*(df_results['Sorting Score'] + df_results['Faithfulness Score'])/2
+    df_results.loc[df_results['Validity Score']==0, 'SortBench Score'] = 0
     return df_results
+
+from transformers import AutoTokenizer
+import os
+
+# get token from env
+hf_access_token = os.getenv("HF_ACCESS_TOKEN")
+deepseekr_tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1-Distill-Llama-70B", token=hf_access_token)
+
+def deepseek_numtokens(input):
+    return deepseekr_tokenizer(input, return_tensors="pt").input_ids.shape[1]
