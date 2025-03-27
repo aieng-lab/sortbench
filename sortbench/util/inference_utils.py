@@ -7,7 +7,7 @@ from util.result_utils import check_if_result_available
 from openai import OpenAI, InternalServerError
 import anthropic
 
-_OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo"]
+_OPENAI_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo", "o3-mini"]
 _INNCUBE_MODELS = ["llama3.1", "gemma2", "qwen2.5", "deepseekr1"]
 _ANTROPIC_MODELS = ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"]
 
@@ -94,14 +94,24 @@ def sort_list_with_openai_api(unsorted_list, api_key, model, url=None, use_strea
         else:
             client = OpenAI(api_key=api_key, base_url=url)
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                stream=use_streaming
-            )
+            if model=='o1-mini':
+                # the reasoning models from OpenAI do not have a system prompt
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "user", "content": f"{system_prompt}\n{prompt}"}
+                    ],
+                    stream=use_streaming
+                )
+            else:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt}
+                    ],
+                    stream=use_streaming
+                )
             if use_streaming:
                 # uncomment collected chunks for debugging
                 # collected_chunks = []
