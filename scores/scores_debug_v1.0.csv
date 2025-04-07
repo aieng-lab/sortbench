@@ -2641,7 +2641,7 @@ sortbench,debug,v1.0,claude-3-5-sonnet-20241022,Int-Duplicate,64,list_9,872.0,0.
 sortbench,debug,v1.0,claude-3-5-sonnet-20241022,Int-Duplicate,64,list_10,1008.0,0.0,17.0,0.0,0.0,0.0,0.0,312,0,True,False,,True,False,False,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0
 sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_1,908.0,0.0,15.0,0.0,4.0,0.0,4.0,2166,468,True,False,,True,False,False,0.0,0.0,0.0625,0.0,0.0625,1.0,1.0,0.96875,0.984375
 sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_2,988.0,0.0,16.0,0.0,12.0,4.0,8.0,1150,208,True,False,,True,False,False,0.0,0.0,0.1875,0.0625,0.125,1.0,1.0,0.875,0.9375
-sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_3,1040.0,0.0,17.0,0.0,62.0,0.0,62.0,7094,1984,True,True,"Multiple closing brackets, valid list before first closing bracket.",True,False,False,0.0,0.0,0.96875,0.0,0.96875,0.5,1.0,0.515625,0.37890625
+sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_3,1040.0,0.0,17.0,0.0,62.0,0.0,62.0,7094,1984,True,True,"Multiple closing brackets, valid list before first closing bracket",True,False,False,0.0,0.0,0.96875,0.0,0.96875,0.5,1.0,0.515625,0.37890625
 sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_4,884.0,0.0,15.0,0.0,6.0,1.0,5.0,2997,735,True,False,,True,False,False,0.0,0.0,0.09375,0.015625,0.078125,1.0,1.0,0.9453125,0.97265625
 sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_5,912.0,0.0,14.0,0.0,0.0,0.0,0.0,1501,256,True,False,,True,False,False,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0
 sortbench,debug,v1.0,deepseekr1,Int-Duplicate,64,list_6,1128.0,0.0,16.0,0.0,6.0,0.0,6.0,2865,734,True,False,,True,False,False,0.0,0.0,0.09375,0.0,0.09375,1.0,1.0,0.953125,0.9765625
