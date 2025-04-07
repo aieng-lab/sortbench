@@ -538,7 +538,7 @@ def eval_str_list(str_list, expected_type, debug=True, config_name='config', mod
             if sorted_list is None:
                 sorted_list = drop_after_first_closing_bracket(str_list)
                 if sorted_list is not None:
-                    error_type = 'Multiple closing brackets, valid list before first closing bracket.'
+                    error_type = 'Multiple closing brackets, valid list before first closing bracket'
             if sorted_list is None:
                 sorted_list = latex_matcher(str_list)
                 if sorted_list is not None:
@@ -648,7 +648,7 @@ def evaluate_results(results):
                     unordered_neighbors_after = None
                     count_missing = None
                     count_additional = None
-                    len_diff = None
+                    out_list_len = None
                     is_parsed = False
                 else:
                     unordered_pairs_before = count_unordered_pairs(unsorted_list)
@@ -657,7 +657,7 @@ def evaluate_results(results):
                     unordered_neighbors_after = count_unordered_neighbors(sorted_list)
                     count_missing = count_missing_items(unsorted_list, sorted_list)
                     count_additional = count_additional_items(unsorted_list, sorted_list)
-                    len_diff = len(unsorted_list)-len(sorted_list)
+                    out_list_len = len(sorted_list)
                     is_parsed = True
 
                 result_dict = {
@@ -674,7 +674,7 @@ def evaluate_results(results):
                     'Unordered Neighbors After': unordered_neighbors_after,
                     'Missing Items': count_missing,
                     'Additional Items': count_additional,
-                    'Length Difference': len_diff,
+                    'Output List Length': out_list_len,
                     'Output Length': num_chars,
                     'Thinking Length': thinking_length,
                     'Parsed': is_parsed,
@@ -756,11 +756,10 @@ def normalize_metrics(df_results):
     - df_results: DataFrame with the normalized metrics
     """
 
-    df_results['Unordered Pairs (%)'] = df_results['Unordered Pairs After']/(df_results['Size']*(df_results['Size']-1)/2)
-    df_results['Unordered Neighbors (%)'] = df_results['Unordered Neighbors After']/df_results['Size']
+    df_results['Unordered Pairs (%)'] = df_results['Unordered Pairs After']/(df_results['Output List Length']*(df_results['Output List Length']-1)/2)
+    df_results['Unordered Neighbors (%)'] = df_results['Unordered Neighbors After']/df_results['Output List Length'] # TODO: size is only for the original list, sorted list might have different length. this is buggy
     df_results['Missing Items (%)'] = (df_results['Missing Items']/df_results['Size']).clip(upper=1)
     df_results['Additional Items (%)'] = (df_results['Additional Items']/df_results['Size']).clip(upper=1)
-    df_results['Absolute Length Difference (%)'] = abs(df_results['Length Difference']/df_results['Size'])
     return df_results
 
 def compute_total_score(df_results):
