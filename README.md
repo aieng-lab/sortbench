@@ -51,13 +51,14 @@ To run the benchmark, you need to have valid API keys for the inference endpoint
 ```bash
 export OPENAI_API_KEY="your_openai_api_key"
 export INNCUBE_API_KEY="your_inncube_api_key"
+export ANTROPIC_API_KEY="your_anthropic_api_key"
 ```
 
 We currently support the following models from Open AI:
 - `gpt-4o`: OpenAI's GPT-4 (large)
 - `gpt-4o-mini`: OpenAI's GPT-4 (mini)
-- `gpt-3.5-turbo`: OpenAI's GPT-3.5-turbo
-- `o1`: OpenAI's o1 model
+- `o3-mini`: OpenAI's o3-mini model
+- 'o1`: OpenAI's o1 model
 
 The Inncube cluster currently hosts the following models:
 - `llama3.1`: Meta's LLAMA 3.1
@@ -68,7 +69,7 @@ The Inncube cluster currently hosts the following models:
 To run the benchmark, run the following command:
 
 ```bash
-python sortbench/create_results.py --mode=basic --version=v1.0 --model_names gpt-4o gpt-4o-mini
+python sortbench/create_results.py --mode=basic --version=v1.0 --model_names gpt-4o gpt-4o-mini gpt-o3-mini llama-3.1 deepseekr1 claude-3-5-haiku-20241022 claude-3-5-sonnet-20241022
 python sortbench/create_results.py --mode=advanced --version=v1.0 --model_names gpt-4o gpt-4o-mini
 python sortbench/create_results.py --mode=debug --version=v1.0 --model_names gpt-4o gpt-4o-mini
 ```
